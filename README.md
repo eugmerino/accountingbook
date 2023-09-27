@@ -10,8 +10,8 @@ Son herramientas que debes tener instaladas en tu máquina local.
 2. **Virtualenvwrapper-win** -- https://pypi.org/project/virtualenvwrapper-win/
 
 ## Creación de ambiente para desarrollo
-1. Crear el ambiente con el comando: `` virtualenv <nombre del ambiente> ``.  
-si tu variable de entorno de python es **py** debes ejecutar el comando: `` virtualenv -p py <nombre del ambiente> ``, esto tomará tu python global y la version 3.11  
+1. Crear el ambiente con el comando: `` mkvirtualenv <nombre del ambiente> ``.  
+si tu variable de entorno de python es **py** debes ejecutar el comando: `` mkvirtualenv -p py <nombre del ambiente> ``, esto tomará tu python global y la version 3.11  
 2. Entrar al ambiente: `` workon <nombre del ambiente> ``.
 3. Instalación de dependencias: `` pip install -r requirements.txt ``.
 4. Para desactivar el ambiente debes ejecutar el comando: `` deactivate ``.
