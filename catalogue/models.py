@@ -34,20 +34,23 @@ class Account(models.Model):
          verbose_name="Cuenta"
          verbose_name_plural="Cuentas"
 
+def generate_code(account_id=None, parent=False, code=""):
+    """
+    Genera el código para la cuenta a crear
+    """
+    last_id = Account.objects.filter(parent=account_id).count() + 1
+    return code + str(last_id)
 
 # Signals
 @receiver(pre_save, sender=Account)
 def account_pre_save_receiver(sender, instance, *args, **kwargs):
     """
     Se encarga de asignar el código de la cuenta.
+    Se ejecuta antes de guardar la cuenta.
     """
     if not instance.id:
         if not instance.parent:
-            # Devuelve el numero de cuentas padre registradas.
-            last_id = Account.objects.filter(parent=None).count()
-            instance.code=str(last_id+1)
+            instance.code=generate_code(None, True)
         else:
-            # Devuelve el numero de cuentas hijas que tiene la cuenta padre
-            last_id = Account.objects.filter(parent=instance.parent_id).count()
-            instance.code=instance.parent.code + str(last_id+1)
+            instance.code=generate_code(instance.parent_id, False, instance.parent.code)
             
