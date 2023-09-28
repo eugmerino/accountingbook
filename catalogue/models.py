@@ -9,7 +9,10 @@ class Account(models.Model):
     """
     representa una cuenta de catalogo
     """
-    code=models.CharField("Código", max_length=50)
+    code=models.CharField(
+        "Código", max_length=50,
+        help_text="El código se autogenera al guardar la cuenta"
+    )
     name=models.CharField("Nombre", max_length=200)
     description = models.TextField("Descripción", max_length=250)
     parent=models.ForeignKey('self',
