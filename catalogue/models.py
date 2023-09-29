@@ -28,7 +28,7 @@ class Account(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return "{} - {}".format(self.code, self.name)
     
     class Meta:
          verbose_name="Cuenta"
@@ -39,6 +39,8 @@ def generate_code(account_id=None, parent=False, code=""):
     Genera el código para la cuenta a crear
     """
     last_id = Account.objects.filter(parent=account_id).count() + 1
+    if parent and len(code)>1 and last_id < 10:
+        code+= '0'
     return code + str(last_id)
 
 # Signals
@@ -50,7 +52,7 @@ def account_pre_save_receiver(sender, instance, *args, **kwargs):
     """
     if not instance.id:
         if not instance.parent:
-            instance.code=generate_code(None, True)
+            instance.code=generate_code(None, False)
         else:
-            instance.code=generate_code(instance.parent_id, False, instance.parent.code)
+            instance.code=generate_code(instance.parent_id, True, instance.parent.code)
             
