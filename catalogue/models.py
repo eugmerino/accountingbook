@@ -44,6 +44,9 @@ class Account(models.Model):
          verbose_name_plural="Cuentas"
 
 def account_exists(code):
+    """
+    Verifica si existe el codigo
+    """
     if Account.filter(pk=code).exists():
         return True
     return False
@@ -53,8 +56,7 @@ def generate_code(account_id=None, parent=False, code=""):
     Genera el código para la cuenta a crear
     """
     new_code = ''
-    if parent:
-        print('------------------------is parent------------------------------')
+    if not parent:
         last_code = Account.objects.filter(parent=None).last()
         if last_code:
             new_code = str(int(last_code.code) + 1)
@@ -62,7 +64,6 @@ def generate_code(account_id=None, parent=False, code=""):
             new_code = code + '1'
     else:
         last_code = Account.objects.filter(parent=account_id).last()
-        print('------------------------is not parent------------------------------')
         if last_code:
             new_code = str(int(last_code.code) + 1)
         else:
@@ -70,7 +71,6 @@ def generate_code(account_id=None, parent=False, code=""):
                 new_code = code + '01'
             else:
                 new_code = code + '1'
-    print(new_code + '{--')
     return new_code
             
 # Signals
