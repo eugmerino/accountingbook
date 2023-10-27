@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.urls import include, path
 
 from catalogue.models import Account
 
@@ -35,7 +36,12 @@ class AccountAdmin(admin.ModelAdmin):
         """
         Retorna los campos de la cuenta que no se podrán editar
         """
-        fields = ['code']
+        hidden_fields = []
         if obj:
-            fields.append('parent')
-        return fields
+            print(obj.is_parent())
+            hidden_fields.append('parent')
+            if obj.is_parent():
+                hidden_fields.append('code')
+        else:
+            hidden_fields.append('code')
+        return hidden_fields
