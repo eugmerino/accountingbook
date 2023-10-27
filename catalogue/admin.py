@@ -38,7 +38,6 @@ class AccountAdmin(admin.ModelAdmin):
         """
         hidden_fields = []
         if obj:
-            print(obj.is_parent())
             hidden_fields.append('parent')
             if obj.is_parent():
                 hidden_fields.append('code')
