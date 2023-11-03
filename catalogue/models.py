@@ -106,4 +106,9 @@ class Balance_type(models.Model):
         "Naturaleza del saldo",
         default=False
     )
+    class Meta:
+         verbose_name="Naturaleza del Saldo"
+         verbose_name_plural="Naturaleza de los Saldos"
+
+
         
