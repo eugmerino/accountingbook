@@ -1,9 +1,13 @@
 from django.db import models
+from django.db.models.query import QuerySet
 
 # import signals (Disparadores)
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
+class MainAccountsManager(models.Manager):
+    def get_queryset(self) -> QuerySet:
+        return super().get_queryset().filter(parent=None)
 
 class Account(models.Model):
     """
@@ -39,6 +43,7 @@ class Account(models.Model):
             return True
         return False
     
+    mainAccounts_objects = MainAccountsManager()
     class Meta:
          verbose_name="Cuenta"
          verbose_name_plural="Cuentas"
@@ -86,3 +91,19 @@ def account_pre_save_receiver(sender, instance, *args, **kwargs):
         else:
             instance.code=generate_code(instance.parent_id, True, instance.parent.code)
             
+
+class Balance_type(models.Model):
+    """"
+    Representa la asignacion del tipo de saldo a las cuentas
+    principales en el catalogo de cuentas
+    """
+    main_account=models.ForeignKey('Account',
+        on_delete=models.PROTECT,
+        unique=True,
+        verbose_name="Cuenta principal"
+    )
+    nature_of_balance = models.BooleanField(
+        "Naturaleza del saldo",
+        default=False
+    )
+        

@@ -1,7 +1,15 @@
+from typing import Any
 from django.contrib import admin
+from django.db.models.fields import Field
+from django.db.models.fields.related import ForeignKey
+from django.forms.fields import TypedChoiceField
+from django.forms.models import ModelChoiceField
+from django.http.request import HttpRequest
 from django.urls import include, path
+from django import forms
 
 from catalogue.models import Account
+from catalogue.models import Balance_type
 
 
 #-------- Admin site --------
@@ -44,3 +52,38 @@ class AccountAdmin(admin.ModelAdmin):
         else:
             hidden_fields.append('code')
         return hidden_fields
+    
+class BalanceTypeAdminForm(forms.ModelForm):
+    class Meta:
+        model = Balance_type
+        fields = '__all__'
+
+    nature_of_balance = forms.ChoiceField(
+        choices=[(True, 'Acreedor'), (False, 'Deudor')],
+        widget=forms.RadioSelect
+    )
+
+@admin.register(Balance_type)
+class BalanceTypeAdmin(admin.ModelAdmin):
+    list_display = (
+        'main_account',
+        'get_nature_of_balance',
+    )
+    fields = (
+        ('main_account', 'nature_of_balance'),
+    )
+    list_display_links = ['main_account']
+    list_per_page = 10
+    ordering = ['main_account']
+    form = BalanceTypeAdminForm
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name =="main_account":
+            kwargs["queryset"] = Account.mainAccounts_objects.all()
+            return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        
+    def get_nature_of_balance(self, obj):
+        return 'Acreedor' if obj.nature_of_balance else 'Deudor'
+    get_nature_of_balance.short_description = 'Naturaleza del saldo'
+        
+        
