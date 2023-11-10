@@ -2,6 +2,9 @@ from django.contrib import admin
 from django import forms
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
+from django.contrib import messages
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 from journal.models import Item,Transaction
@@ -15,14 +18,42 @@ admin.site.site_title = "Accounting Book"
     
 class TransactionAdminForm(forms.ModelForm):
     """
-    cambia el formato del boolean por radiobuttons
+    Forms de las transacciones por partidas
     """
     class Meta:
         model = Transaction
-        fields = '__all__'
+
+        fields = (
+            'account',
+            'balance',
+            'debit_credit'
+        )
+        
+        autocomplete_fields = ('Account',)
+
+
         widgets = {
             'debit_credit': forms.RadioSelect(choices=((False, 'Debe'), (True, 'Haber')))
         }
+
+    
+
+class TransactionInlineFormSet(forms.BaseInlineFormSet):
+    def clean(self):
+        total_debit = 0
+        total_credit = 0
+
+        for form in self.forms:
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                balance = form.cleaned_data.get('balance',0)
+                debit_credit = form.cleaned_data.get('debit_credit', False)
+                if debit_credit:
+                    total_credit +=balance
+                else:
+                    total_debit += balance
+
+        if total_debit != total_credit:
+            raise forms.ValidationError("La partida no esta balanceada.")
 
 
 class registreTransactionInLine(admin.TabularInline):
@@ -31,7 +62,9 @@ class registreTransactionInLine(admin.TabularInline):
     """
     model = Transaction
     form = TransactionAdminForm
+    formset = TransactionInlineFormSet
     extra = 0
+    
 
 
 @admin.register(Item)
@@ -51,9 +84,10 @@ class ItemAdmin(admin.ModelAdmin):
 
     list_display_links = ['date']
     fields = (
-        'date',
+        ('date'),
         'value'
     )
+    
 
 
     ordering = ['date']
@@ -75,9 +109,4 @@ class ItemAdmin(admin.ModelAdmin):
         return saldo
     get_item_transaction_total.short_description = 'Saldo'
 
-    def is_balanced(self, obj):
-        total_debe = obj.transaction_set.filter(debit_credit=False).aggregate(Sum('balance'))['balance__sum'] or 0
-        total_haber = obj.transaction_set.filter(debit_credit=True).aggregate(Sum('balance'))['balance__sum'] or 0
 
-        if total_debe != total_haber:
-            raise ValidationError("La partida no está balanceada. El total de 'Debe' y 'Haber' no coincide.")
