@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
+from catalogue.models import Account
 from journal.models import Item,Transaction
 
 #-------- Admin site --------
@@ -29,8 +29,7 @@ class TransactionAdminForm(forms.ModelForm):
             'debit_credit'
         )
         
-        autocomplete_fields = ('Account',)
-
+       
 
         widgets = {
             'debit_credit': forms.RadioSelect(choices=((False, 'Debe'), (True, 'Haber')))
@@ -60,10 +59,15 @@ class registreTransactionInLine(admin.TabularInline):
     """
     carga la transaccion de registros dentro de la creacion de partidas
     """
+    
     model = Transaction
     form = TransactionAdminForm
+    autocomplete_fields = ('account',)
     formset = TransactionInlineFormSet
     extra = 0
+    
+    
+    
     
 
 
@@ -109,4 +113,7 @@ class ItemAdmin(admin.ModelAdmin):
         return saldo
     get_item_transaction_total.short_description = 'Saldo'
 
-
+    def formfield_for_accountsTransaccion(self, db_field, request, **Kwargs):
+        if db_field.name == 'account':
+            Kwargs["queryset"] = Account.moveAccounts_objects.all()
+            return super().formfield_for_foreignkey(db_field, request, **Kwargs)
