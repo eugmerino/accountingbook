@@ -6,8 +6,12 @@ from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
 class MainAccountsManager(models.Manager):
+    """
+        Este manager retorna las cuentas principales
+    """
     def get_queryset(self) -> QuerySet:
         return super().get_queryset().filter(parent=None)
+
 
 class Account(models.Model):
     """
@@ -43,7 +47,9 @@ class Account(models.Model):
             return True
         return False
     
+    objects = models.Manager()
     mainAccounts_objects = MainAccountsManager()
+
     class Meta:
          verbose_name="Cuenta"
          verbose_name_plural="Cuentas"
@@ -89,26 +95,31 @@ def account_pre_save_receiver(sender, instance, *args, **kwargs):
         if not instance.parent:
             instance.code=generate_code(None, False)
         else:
-            instance.code=generate_code(instance.parent_id, True, instance.parent.code)
+            instance.code=generate_code(instance.parent_id, True, instance.parent.code)    
             
-
+                   
 class Balance_type(models.Model):
     """"
     Representa la asignacion del tipo de saldo a las cuentas
     principales en el catalogo de cuentas
     """
-    main_account=models.ForeignKey('Account',
-        on_delete=models.PROTECT,
-        unique=True,
+    main_account=models.OneToOneField(
+        'Account',
+        on_delete=models.CASCADE,
+        limit_choices_to={'parent': None},
         verbose_name="Cuenta principal"
     )
     nature_of_balance = models.BooleanField(
-        "Naturaleza del saldo",
         default=False
     )
+
+    def __str__(self):
+        return "{} - {}".format(self.main_account, get_nature_of_balance(self.nature_of_balance))
+   
     class Meta:
-         verbose_name="Naturaleza del Saldo"
-         verbose_name_plural="Naturaleza de los Saldos"
+     verbose_name="Naturaleza del Saldo"
+     verbose_name_plural="Naturaleza de los Saldos"
 
-
+def get_nature_of_balance(nature_of_balance):
+        return 'Acreedor' if nature_of_balance else 'Deudor'
         
