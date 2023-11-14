@@ -15,7 +15,7 @@ admin.site.site_header = "Accounting Book"
 admin.site.site_title = "Accounting Book"
 # ---------------------------
 
-    
+
 class TransactionAdminForm(forms.ModelForm):
     """
     Forms de las transacciones por partidas
@@ -28,16 +28,15 @@ class TransactionAdminForm(forms.ModelForm):
             'balance',
             'debit_credit'
         )
-        
-       
-
         widgets = {
             'debit_credit': forms.RadioSelect(choices=((False, 'Debe'), (True, 'Haber')))
         }
 
     
-
 class TransactionInlineFormSet(forms.BaseInlineFormSet):
+    """
+    Valida que hayan igual cantidad de transacciones marcadas con debe y con haber
+    """
     def clean(self):
         total_debit = 0
         total_credit = 0
@@ -57,46 +56,37 @@ class TransactionInlineFormSet(forms.BaseInlineFormSet):
 
 class registreTransactionInLine(admin.TabularInline):
     """
-    carga la transaccion de registros dentro de la creacion de partidas
+    carga las transacciones dentro de la creacion de partidas
     """
-    
     model = Transaction
     form = TransactionAdminForm
     autocomplete_fields = ('account',)
     formset = TransactionInlineFormSet
     extra = 0
     
-    
-    
-    
-
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     """
-    cargado de partidas
+    Carga el listado de las partidas
     """
-    inlines = [registreTransactionInLine]
+    list_display_links = ['date']
     list_display = (
         'get_item_number',
         'date',
         'get_item_transaction_total',
         'value'
         )
-    
-    
-
-    list_display_links = ['date']
+    ordering = ['date']
+    """
+    Caga el agregar/modificar partida
+    """
     fields = (
         ('date'),
         'value'
     )
-    
+    inlines = [registreTransactionInLine]
 
-
-    ordering = ['date']
-
-    
     def get_item_number(self, obj):
         """
         Coloca un numero correlativo a la partida
@@ -106,14 +96,12 @@ class ItemAdmin(admin.ModelAdmin):
         index = item_list.index(obj) + 1
         return index
     get_item_number.short_description = 'Número de partida'
-    
         
     def get_item_transaction_total(self, obj):
+        """
+        Devuelve el saldo total de la transaccion
+        """
         saldo = obj.transaction_set.filter(debit_credit=False).aggregate(Sum('balance'))['balance__sum'] or 0
         return saldo
     get_item_transaction_total.short_description = 'Saldo'
 
-    def formfield_for_accountsTransaccion(self, db_field, request, **Kwargs):
-        if db_field.name == 'account':
-            Kwargs["queryset"] = Account.moveAccounts_objects.all()
-            return super().formfield_for_foreignkey(db_field, request, **Kwargs)

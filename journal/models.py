@@ -24,31 +24,30 @@ class Item(models.Model):
         verbose_name_plural="Partidas"
     
     
-
-
 class Transaction(models.Model):
     """
     represetacion de la insersion de cuentas con su respectivo cargo
     """
     account = models.ForeignKey(
         Account,
-        on_delete= models.CASCADE, #Si se borra una cuenta vale madre todo el diario
+        on_delete= models.CASCADE, 
         null=False,
         blank=False,
+        limit_choices_to={'parent__parent__isnull': False},#limita las cuentas que se puedan mostrar
         verbose_name="Cuenta"
     )
     balance = models.FloatField("Saldo")
     debit_credit = models.BooleanField("Debe/Haber") #False debe | True haber
     Item = models.ForeignKey(
         Item,
-        on_delete=models.CASCADE, #En cascada porque si se borra la partida las transacciones no tienen porque estar
+        on_delete=models.CASCADE,
         null=False,
         blank=False,
         verbose_name="Partida" 
     )
 
     def __str__(self):
-        return "V/ {} - $ {}".format(self.account,self.balance)
+        return "{} - $ {}".format(self.account,self.balance)
 
     class Meta:
         verbose_name="Transacción"

@@ -5,9 +5,6 @@ from django.db.models.query import QuerySet
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
-class moveAccountsManager(models.Manager):
-    def get_queryset(self) -> QuerySet:
-        return super().get_queryset().filter(parent=None)
 
 class Account(models.Model):
     """
@@ -42,9 +39,6 @@ class Account(models.Model):
         if Account.objects.filter(parent=self.id).count() > 0:
             return True
         return False
-    
-    objects = models.Manager()
-    moveAccounts_objects = moveAccountsManager()
     
     class Meta:
          verbose_name="Cuenta"
