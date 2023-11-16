@@ -1,9 +1,9 @@
 from django.db import models
+from django.db.models.query import QuerySet
 
 # import signals (Disparadores)
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
-
 
 class Account(models.Model):
     """
@@ -20,12 +20,12 @@ class Account(models.Model):
         on_delete = models.PROTECT,
         null=True,
         blank=True,
-        verbose_name="Cuenta padre"
+        verbose_name="Cuenta padre",
     )
     account_r = models.BooleanField(
         "Cuenta R",
         help_text="Activar si es cuenta complementaria",
-        default=False
+        default=False,
     )
 
     def __str__(self):
@@ -38,7 +38,7 @@ class Account(models.Model):
         if Account.objects.filter(parent=self.id).count() > 0:
             return True
         return False
-    
+
     class Meta:
          verbose_name="Cuenta"
          verbose_name_plural="Cuentas"
@@ -84,5 +84,31 @@ def account_pre_save_receiver(sender, instance, *args, **kwargs):
         if not instance.parent:
             instance.code=generate_code(None, False)
         else:
-            instance.code=generate_code(instance.parent_id, True, instance.parent.code)
-            
+            instance.code=generate_code(instance.parent_id, True, instance.parent.code)    
+
+
+class Balance_type(models.Model):
+    """"
+    Representa la asignacion del tipo de saldo a las cuentas
+    principales en el catalogo de cuentas
+    """
+    main_account=models.OneToOneField(
+        'Account',
+        on_delete=models.CASCADE,
+        limit_choices_to={'parent': None},
+        verbose_name="Cuenta principal",
+    )
+    nature_of_balance = models.BooleanField(
+        default=False
+    )
+
+    def __str__(self):
+        return "{} - {}".format(self.main_account, get_nature_of_balance(self.nature_of_balance))
+   
+    class Meta:
+     verbose_name="Naturaleza del Saldo"
+     verbose_name_plural="Naturaleza de los Saldos"
+
+def get_nature_of_balance(nature_of_balance):
+        return 'Acreedor' if nature_of_balance else 'Deudor'
+        
