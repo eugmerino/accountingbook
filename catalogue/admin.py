@@ -1,10 +1,5 @@
 from typing import Any
 from django.contrib import admin
-from django.db.models.fields import Field
-from django.db.models.fields.related import ForeignKey
-from django.forms.fields import TypedChoiceField
-from django.forms.models import ModelChoiceField
-from django.http.request import HttpRequest
 from django.urls import include, path
 from django import forms
 
@@ -58,7 +53,7 @@ class BalanceTypeAdminForm(forms.ModelForm):
     nature_of_balance = forms.ChoiceField(
         choices=[(True, 'Acreedor'), (False, 'Deudor')],
         widget=forms.RadioSelect,
-        label="Naturaleza del saldo"
+        label="Naturaleza del saldo",
     )
 
 

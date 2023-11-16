@@ -5,14 +5,6 @@ from django.db.models.query import QuerySet
 from django.dispatch import receiver
 from django.db.models.signals import pre_save
 
-class MainAccountsManager(models.Manager):
-    """
-        Este manager retorna las cuentas principales
-    """
-    def get_queryset(self) -> QuerySet:
-        return super().get_queryset().filter(parent=None)
-
-
 class Account(models.Model):
     """
     representa una cuenta de catalogo
@@ -28,12 +20,12 @@ class Account(models.Model):
         on_delete = models.PROTECT,
         null=True,
         blank=True,
-        verbose_name="Cuenta padre"
+        verbose_name="Cuenta padre",
     )
     account_r = models.BooleanField(
         "Cuenta R",
         help_text="Activar si es cuenta complementaria",
-        default=False
+        default=False,
     )
 
     def __str__(self):
@@ -46,9 +38,6 @@ class Account(models.Model):
         if Account.objects.filter(parent=self.id).count() > 0:
             return True
         return False
-    
-    objects = models.Manager()
-    mainAccounts_objects = MainAccountsManager()
 
     class Meta:
          verbose_name="Cuenta"
@@ -96,8 +85,8 @@ def account_pre_save_receiver(sender, instance, *args, **kwargs):
             instance.code=generate_code(None, False)
         else:
             instance.code=generate_code(instance.parent_id, True, instance.parent.code)    
-            
-                   
+
+
 class Balance_type(models.Model):
     """"
     Representa la asignacion del tipo de saldo a las cuentas
@@ -107,7 +96,7 @@ class Balance_type(models.Model):
         'Account',
         on_delete=models.CASCADE,
         limit_choices_to={'parent': None},
-        verbose_name="Cuenta principal"
+        verbose_name="Cuenta principal",
     )
     nature_of_balance = models.BooleanField(
         default=False
