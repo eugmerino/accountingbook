@@ -75,7 +75,4 @@ class BalanceTypeAdmin(admin.ModelAdmin):
     def get_nature_of_balance(self, obj):
         return 'Acreedor' if obj.nature_of_balance else 'Deudor'
     get_nature_of_balance.short_description = 'Naturaleza del saldo'
-
-
-        
-        
+    
