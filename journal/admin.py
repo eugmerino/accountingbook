@@ -9,13 +9,6 @@ from django.dispatch import receiver
 from catalogue.models import Account
 from journal.models import Item,Transaction
 
-#-------- Admin site --------
-admin.site.index_title = "Accounting Book"
-admin.site.site_header = "Accounting Book"
-admin.site.site_title = "Accounting Book"
-# ---------------------------
-
-
 class TransactionAdminForm(forms.ModelForm):
     """
     Forms de las transacciones por partidas

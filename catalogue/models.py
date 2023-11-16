@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models.query import QuerySet
 
 # import signals (Disparadores)
 from django.dispatch import receiver
