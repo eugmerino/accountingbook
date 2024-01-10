@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'main',
     'catalogue',
     'journal',
+    'stateOfResult',
+    'reports',
 ]
 
 MIDDLEWARE = [
