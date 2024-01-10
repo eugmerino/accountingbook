@@ -17,7 +17,7 @@ def signIn(request):
         user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
         if user is not None:
             login(request,user)
-            return redirect('dashboard')
+            return redirect('home')
             
         return render(request,'login.html',{
             'form': forms.MyAuthenticationForm,
@@ -29,14 +29,14 @@ def signIn(request):
         'form': forms.MyAuthenticationForm
     })
 
-@login_required(login_url="login/")
+@login_required(login_url="/login")
 def dashBoard(request):
     user = get_user(request)
     return render(request,'dashboard.html',{
         'user': user
     })
 
-@login_required(login_url="login/")
+@login_required(login_url="/login")
 def singOut(request):
     if request.method == 'POST':
         logout(request)
