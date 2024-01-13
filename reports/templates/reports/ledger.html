@@ -1,13 +1,67 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Libro Mayor</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS (CDN) and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
+
 <body>
     <h1>Reporte del libro mayor</h1>
-    <p>{{ informacion }}</p><!-- a -->
+    <p>{{ informacion }}</p>
+    <div class="container">
+        {% for account in pricipalesCuentas %}
+        <div class="card">
+            <h5 class="card-title">{{account.name}}</h5>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Concepto</th>
+                            <th>pf</th>
+                            <th>Debe</th>
+                            <th>Haber</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaccion in detallePatidas %}
+                            {% if transaccion.account.name == account.name or transaccion.account.parent.name == account.name %}
+                                
+                                    <tr>
+                                        <td>{{transaccion.Item.date}}</td>
+                                        <td>{{transaccion.Item.value}}</td>
+                                        <td>No se</td>
+                                        {% if not transaccion.debit_credit %}
+                                                <td>{{transaccion.balance}}</td>
+                                                <td> </td>
+                                            
+                                            {% else %}
+                                                <td> </td>
+                                                <td>{{transaccion.balance}}</td>
+
+                                        {% endif %}
+
+                                        {%%}
+                                        {%%}
+                                        {%%}
+                                        <td></td>
+                                    </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
     <!-- Agrega más contenido según sea necesario -->
 </body>
+
 </html>
