@@ -32,7 +32,7 @@
                     </thead>
                     <tbody>
                         {% for transaccion in detallePatidas %}
-                            {% if transaccion.account.name == account.name or transaccion.account.parent.name == account.name %}
+                            {% if transaccion.account.name == account.name or transaccion.account.parent.name == account.name or  transaccion.account.parent.parent.name == account.name%}
                                 
                                     <tr>
                                         <td>{{transaccion.Item.date}}</td>
@@ -47,10 +47,6 @@
                                                 <td>{{transaccion.balance}}</td>
 
                                         {% endif %}
-
-                                        {%%}
-                                        {%%}
-                                        {%%}
                                         <td></td>
                                     </tr>
                             {% endif %}
