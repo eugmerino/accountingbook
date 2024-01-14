@@ -12,42 +12,40 @@
 </head>
 
 <body>
-    <h1>Reporte del libro mayor</h1>
-    <p>{{ informacion }}</p>
+    <div class="container pt-5 text-center">
+        <h1>Reporte del libro mayor</h1>
+    </div>
     <div class="container">
         {% for account in pricipalesCuentas %}
-        <div class="card">
-            <h5 class="card-title">{{account.name}}</h5>
-            <div class="card-body">
-                <table class="table">
+        <div class="pt-5">
+            <h5>{{account.name}}</h5>
+            <div>
+                <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>Fecha</th>
                             <th>Concepto</th>
-                            <th>pf</th>
+                            <th>P/F</th>
                             <th>Debe</th>
                             <th>Haber</th>
                             <th>Saldo</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for transaccion in detallePatidas %}
-                            {% if transaccion.account.name == account.name or transaccion.account.parent.name == account.name or  transaccion.account.parent.parent.name == account.name%}
-                                
+                        {% for m in detalleMayor %}
+                            {% if m.main == account.name %}
                                     <tr>
-                                        <td>{{transaccion.Item.date}}</td>
-                                        <td>{{transaccion.Item.value}}</td>
-                                        <td>No se</td>
-                                        {% if not transaccion.debit_credit %}
-                                                <td>{{transaccion.balance}}</td>
+                                        <td>{{m.transaccion.Item.date}}</td>
+                                        <td>{{m.transaccion.Item.value}}</td>
+                                        <td><a href="http://127.0.0.1:8000/admin/journal/item/{{ m.transaccion.Item.id }}/change/" target="_blank">{{m.numero}}</a></td>
+                                        {% if not m.transaccion.debit_credit %}
+                                                <td>{{m.transaccion.balance}}</td>
                                                 <td> </td>
-                                            
-                                            {% else %}
+                                        {% else %}
                                                 <td> </td>
-                                                <td>{{transaccion.balance}}</td>
-
+                                                <td>{{m.transaccion.balance}}</td>
                                         {% endif %}
-                                        <td></td>
+                                        <td>{{m.saldo}}</td>
                                     </tr>
                             {% endif %}
                         {% endfor %}
