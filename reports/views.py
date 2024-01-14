@@ -82,7 +82,7 @@ def calculoMayor(principalAccounts):
         if not tipo.nature_of_balance:
             print(a.name,"Es deudor porque ",a.parent.parent.name,"lo es")
             for j in journal:
-                if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
+                if j.account.id == a.id or j.account.parent.id == a.id or j.account.parent.parent.id == a.id:
                     contador += getSaldo(j,True)
                     num = 0
                     for p in partida:
@@ -92,7 +92,7 @@ def calculoMayor(principalAccounts):
         else:
             print(a.name,"Es acreedor porque ",a.parent.parent.name,"lo es")
             for j in journal:
-                if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
+                if j.account.id == a.id or j.account.parent.id == a.id or j.account.parent.parent.id == a.id:
                     contador += getSaldo(j,False)
                     num = 0
                     for p in partida:
