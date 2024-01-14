@@ -68,7 +68,8 @@ class ItemAdmin(admin.ModelAdmin):
         'get_item_number',
         'date',
         'get_item_transaction_total',
-        'value'
+        'value',
+        'isItemEnd'
         )
     ordering = ['date']
     """
@@ -76,7 +77,8 @@ class ItemAdmin(admin.ModelAdmin):
     """
     fields = (
         ('date'),
-        'value'
+        'value',
+        'isItemEnd'
     )
     inlines = [registreTransactionInLine]
 
