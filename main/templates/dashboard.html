@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form>
+
+    {% csrf_token %}
+</form>
+<div class="card">
+    <div class="card-body">
+        <h3 class="card-title text-center">AccountingBook</h3>
+        <h5 class="card-title text-center">Bienvenido: {{user}}</h5>
+    </div>
+</div>
+{% endblock %}

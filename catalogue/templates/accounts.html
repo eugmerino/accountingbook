@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<form>
+
+    {% csrf_token %}
+</form>
+<div class="container">
+    <div class="container pt-5">
+        <a href="#" class="btn btn-primary">Crear cuenta</a>
+    </div>
+</div>
+<div class="container">
+    <div class="container pt-5">
+        Aquí tiene que ir la tabla
+        
+        <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Descripcion</th>
+                <th>Cuenta R</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}  
+                    <tr>
+                        <td>{{account.code}}</td>
+                        <td>{{account.name}}</td>
+                        <td>{{account.description}}</td>
+                        {% if account.account_r == True %}
+                            <td>✅</td>
+                        {% else %}
+                            <td>❌</td>
+                        {% endif %}
+
+                    </tr>
+                {% endfor %}
+          </table>
+        
+    </div>
+</div>
+{% endblock %}
