@@ -12,6 +12,7 @@ class Item(models.Model):
     """
     date=models.DateTimeField("Fecha")
     value=models.CharField("Valor", max_length=250)
+    isItemEnd = models.BooleanField("Partida de cierre", default=False)
 
     def __str__(self):
         return "V/ {}".format(self.value)
