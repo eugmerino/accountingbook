@@ -1,3 +1,4 @@
+{% load filters %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -31,6 +32,8 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% with saldo=0 %}
+                        
                         {% for transaccion in detallePatidas %}
                             {% if transaccion.account.name == account.name or transaccion.account.parent.name == account.name or  transaccion.account.parent.parent.name == account.name%}
                                 
@@ -47,10 +50,12 @@
                                                 <td>{{transaccion.balance}}</td>
 
                                         {% endif %}
-                                        <td></td>
+                                        
+                                        <td>{{ account|get_calculated_balance:transaccion }}</td>
                                     </tr>
                             {% endif %}
                         {% endfor %}
+                        {% endwith %}
                     </tbody>
                 </table>
             </div>
