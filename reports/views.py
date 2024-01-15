@@ -4,7 +4,13 @@ from catalogue.models import Account,Balance_type
 
 
 def general_ledger_report(request):
-    principalAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
+
+    #Manda exclusivamente las cuentas que tengan ocurrencia en las partidas
+    principalAccounts = Account.objects.filter(
+        parent__parent__isnull=False, parent__parent__parent__isnull=True,
+        transaction__isnull=False
+    ).distinct()
+
     mayor = calculoMayor(principalAccounts)
     
     context = {
@@ -78,27 +84,29 @@ def calculoMayor(principalAccounts):
     partida = numberItem()
     for a in principalAccounts:
         contador = 0.0 
-        tipo  = Balance_type.objects.get(main_account=a.parent.parent) #Obetenemos el tipo que es True: Acreedor False: Deudor
-        if not tipo.nature_of_balance:
-            print(a.name,"Es deudor porque ",a.parent.parent.name,"lo es")
-            for j in journal:
-                if j.account.id == a.id or j.account.parent.id == a.id or j.account.parent.parent.id == a.id:
-                    contador += getSaldo(j,True)
-                    num = 0
-                    for p in partida:
-                        if j.Item.id == p['idItem']:
-                            num = p['numero']
-                    cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':contador, 'numero':num})
-        else:
-            print(a.name,"Es acreedor porque ",a.parent.parent.name,"lo es")
-            for j in journal:
-                if j.account.id == a.id or j.account.parent.id == a.id or j.account.parent.parent.id == a.id:
-                    contador += getSaldo(j,False)
-                    num = 0
-                    for p in partida:
-                        if j.Item.id == p['idItem']:
-                            num = p['numero']
-                    cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':contador, 'numero':num})              
+        try:
+            tipo = Balance_type.objects.get(main_account=a.parent.parent)
+        except Balance_type.DoesNotExist:
+            tipo = None
+        if tipo is not None:
+            if not tipo.nature_of_balance:
+                for j in journal:
+                    if j.account.id == a.id or j.account.parent.id == a.id or j.account.parent.parent.id == a.id:
+                        contador += getSaldo(j,True)
+                        num = 0
+                        for p in partida:
+                            if j.Item.id == p['idItem']:
+                                num = p['numero']
+                        cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':contador, 'numero':num})
+            else:
+                for j in journal:
+                    if j.account.id == a.id or j.account.parent.id == a.id or j.account.parent.parent.id == a.id:
+                        contador += getSaldo(j,False)
+                        num = 0
+                        for p in partida:
+                            if j.Item.id == p['idItem']:
+                                num = p['numero']
+                        cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':contador, 'numero':num})              
     return cuentasMayorizadas
 
 
