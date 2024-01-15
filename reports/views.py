@@ -32,7 +32,12 @@ def general_ledger_report(request):
     
     return render(request, 'reports/ledger.html', context)
 
-
+def chekingBalance(request):
+    context = {
+        'datos':calculoBalanza(),
+        'total':sumaBalanza()
+    }
+    return render(request,'reports/balanceComprobación.html',context)
 
 def getSaldo(j,type):
     """
@@ -122,3 +127,52 @@ def calculoMayor(principalAccounts):
     return cuentasMayorizadas
 
 
+def calculoBalanza():
+    principalAccounts = cuentaToMayorizar()
+    journal = Transaction.objects.all()
+    cuentasBalance = []
+    for a in principalAccounts:
+        contador = 0.0 
+        saldoDebe = 0.0
+        saldoHaber = 0.0
+        try:
+            tipo = Balance_type.objects.get(main_account=a.parent.parent)
+        except Balance_type.DoesNotExist:
+            # Manejar el caso cuando no se encuentra el objeto Balance_type
+            tipo = None  # o proporcionar un valor predeterminado según tu lógica
+        if tipo is not None:
+            if not tipo.nature_of_balance:
+                for j in journal:
+                    if j.Item.isItemEnd is False:
+                        if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
+                            contador += getSaldo(j,True)
+                            if(j.debit_credit is False):
+                                saldoDebe += j.balance
+                            else:
+                                saldoHaber += j.balance
+            else:
+                for j in journal:
+                    if j.Item.isItemEnd is False:
+                        if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
+                            contador += getSaldo(j,False)
+                            if(j.debit_credit is False):
+                                saldoDebe += j.balance
+                            else:
+                                saldoHaber += j.balance
+            cuentasBalance.append({'main': a.name, 'saldo':round(contador,2), 'debe':round(saldoDebe,2), 'haber':round(saldoHaber,2), 'tipo':tipo.nature_of_balance})              
+    return cuentasBalance
+
+def sumaBalanza():
+    totalDebe = 0
+    totalHaber = 0
+    totalDeudor = 0
+    totalAcreedor = 0
+    for c in calculoBalanza():
+        totalDebe += c['debe']
+        totalHaber += c['haber']
+        if c['tipo'] is False:
+            totalDeudor += c['saldo']
+        else:
+            totalAcreedor += c['saldo']
+    
+    return {'tDebe':totalDebe,'tHaber':totalHaber,'tDeudor':totalDeudor,'tAcreedor':totalAcreedor}
