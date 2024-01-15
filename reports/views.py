@@ -1,15 +1,27 @@
 from django.shortcuts import render
 from journal.models import Transaction,Item
 from catalogue.models import Account,Balance_type
+from django.db.models import Q
+
+def cuentaToMayorizar():
+    principalAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
+    accountTransaccion = Transaction.objects.all()
+
+    cuentaMostrar = []
+
+    for p in principalAccounts:
+        for t in accountTransaccion:
+            if p.id == t.account.id or p.id == t.account.parent.id or p.id == t.account.parent.parent.id:
+                cuentaMostrar.append(p)
+                break  # Rompe el bucle interno una vez que se encuentra una coincidencia
+
+    return cuentaMostrar
 
 
 def general_ledger_report(request):
 
     #Manda exclusivamente las cuentas que tengan ocurrencia en las partidas
-    principalAccounts = Account.objects.filter(
-        parent__parent__isnull=False, parent__parent__parent__isnull=True,
-        transaction__isnull=False
-    ).distinct()
+    principalAccounts = cuentaToMayorizar()
 
     mayor = calculoMayor(principalAccounts)
     
