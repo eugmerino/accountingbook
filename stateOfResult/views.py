@@ -1,9 +1,12 @@
 from django.shortcuts import render
-from journal.models import Transaction
-from catalogue.models import Account,Balance_type
+from stateOfResult.models import Formula,Term
 
 def general_stateOfResult_report(request):
+
+    listFormulas = Formula.objects.all().order_by('-id')
+    listTerms = Term.objects.all()
     context = {
-        'informacion' : 'Este sera el reporte del estado de resultado!!!!.',
+        'listFormulas': listFormulas,
+        'listTerms': listTerms,
     }
     return render(request, 'reports/stateOfResult.html', context)

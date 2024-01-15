@@ -11,6 +11,7 @@ def insert_initial_data(sender, **kwargs):
         Formula.objects.get_or_create(concept='Gastos de Venta', initial_value=None)
         Formula.objects.get_or_create(concept='Gastos de Administración', initial_value=None)
         Formula.objects.get_or_create(concept='Inventario Final', initial_value=None)
+        Formula.objects.get_or_create(concept='Mercadería Disponible Para la Venta', initial_value=None)
         Formula.objects.get_or_create(concept='Compras Netas', initial_value=None)
         Formula.objects.get_or_create(concept='Compras Totales', initial_value=None)
         Formula.objects.get_or_create(concept='Ventas Netas', initial_value=None)

@@ -30,7 +30,7 @@ class Term(models.Model):
         verbose_name="Cuenta"
     )
     operation=models.BooleanField("Operacion")
-    Formula = models.ForeignKey(
+    formula = models.ForeignKey(
         Formula,
         on_delete=models.CASCADE,
         null=False,

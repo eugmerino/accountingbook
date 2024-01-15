@@ -1,6 +1,6 @@
+{% load filters %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,110 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <h1>Estado de Resultado</h1>
-    <p>{{ informacion }}</p>
+    <h1>Reporte del estado de resultado</h1>
+    <div class="container">
+        <div class="card">
+            <h5 class="card-title">Estado de Resultado</h5>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for formula in listFormulas %}
+                            
+                            {% for term in listTerms %}
+                                {% if term.formula.id == formula.id %}
+                                    <tr>
+                                        {% if term.operation %}
+                                            <td>(+) {{term.account.name}}</td>
+                                            {% else %}
+                                            <td>(-) {{term.account.name}}</td>
+                                        {% endif %}
+                                        <td>$ {{ term.account|mayorizar }}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            {% if formula.concept == 'Gastos de Administración' %}
+                                <tr>
+                                    <td>(=) Costo de Venta</td>
+                                    <td></td>
+                                    <td>$ {{"Costo De Venta"|getCostoDeVenta}}</td>
+                                </tr>
+                                <tr>
+                                    <td>(=) Utilidad Bruta</td>
+                                    <td></td>
+                                    <td>$ {{"Utilidad Bruta"|getUtilidadBruta}}</td>
+                                </tr>
+                            {% endif %}
+                            {% if formula.concept == 'Otros Productos' %}
+                                <tr>
+                                    <td>(=) Gastos de Operación</td>
+                                    <td></td>
+                                    <td>$ {{"Gastos de Operación"|getGastosDeOperacion}}</td>
+                                </tr>
+                                <tr>
+                                    <td>(=) Utilidad de Operacíon</td>
+                                    <td></td>
+                                    <td>$ {{"Utilidad de Operación"|getUtilidadDeOperacion}}</td>
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                {% if formula.concept == 'Inventario Final' %}
+                                    <td>(-) {{formula.concept}}</td>
+                                {% else %}
+                                    <td>(=) {{formula.concept}}</td>
+                                {% endif %}
+                                {% if not formula.initial_value == None %}
+                                    <td>$ {{formula.initial_value}}</td>
+                                {% else %}
+                                <td></td>
+                                {% endif %}
+                                {% if formula.concept == 'Compras Netas' %}
+                                    <td>$ {{"Compras Netas"|getComprasNetas}}</td>
+                                {% else %}
+                                    {% if formula.concept == 'Mercadería Disponible Para la Venta' %}
+                                        <td>$ {{"Mercaderia Disponible"|getMercaderiaDisponible}}</td>
+                                    {% else %}
+                                        <td>$ {{formula|getTotalConcept}}</td>
+                                    {% endif %}
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>(=) Utilidad Antes de Reserva Legal</td>
+                            <td></td>
+                            <td>$ {{"Utilidad Antes de Reserva Legal"|getUtilidadAntesReserva}}</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Reserva Legal</td>
+                            <td></td>
+                            <td>$ {{"Reserva Legal"|getReservaLegal}}</td>
+                        </tr>
+                        <tr>
+                            <td>(=) Utilidad Antes de Impuesto Sobre la Renta</td>
+                            <td></td>
+                            <td>$ {{"Utilidad Antes de Impuesto Sobre la Renta"|getUtilidadAntesImpuesto}}</td>
+                        </tr>
+                        <tr>
+                            <td>(-) Impuesto Sobre la Renta</td>
+                            <td></td>
+                            <td>$ {{"Impuesto Sobre la Renta"|getImpuestoSobrelaRenta}}</td>
+                        </tr>
+                        <tr>
+                            <td>(=) Utilidad del Ejercicio</td>
+                            <td></td>
+                            <td>$ {{"Utilidad del Ejercicio"|getUtilidadDelEjercicio}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
