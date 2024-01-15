@@ -9,7 +9,8 @@ def majorJournal(request):
     """
     principalAccounts = cuentaToMayorizar()
     mayor = calculoMayor(principalAccounts)
-    
+    journal = Transaction.objects.all()
+
     context = {
         'pricipalesCuentas' : principalAccounts,
         'detalleMayor' : mayor
@@ -215,3 +216,4 @@ def balanceGeneral(primaryAccounts, secondaryAccounts, tertiaryAccounts):
         cuentas.append({'cuenta':p,'saldo':pCount})
         print(p,"                 : ",pCount )
     return cuentas
+
