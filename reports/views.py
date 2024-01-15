@@ -9,7 +9,8 @@ def majorJournal(request):
     """
     principalAccounts = cuentaToMayorizar()
     mayor = calculoMayor(principalAccounts)
-    
+    journal = Transaction.objects.all()
+
     context = {
         'pricipalesCuentas' : principalAccounts,
         'detalleMayor' : mayor
