@@ -27,6 +27,15 @@ def chekingBalance(request):
     }
     return render(request,'reports/balanceComprobación.html',context)
 
+def balanceGenereal(request):
+    primaryAccounts = [Account.objects.get(name='ACTIVO'),Account.objects.get(name='PASIVO'),Account.objects.get(name='PATRIMONIO')]
+    secondaryAccounts = Account.objects.filter(parent__isnull=False,parent__parent__isnull=True)
+    tertiaryAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
+    context = {
+        'detalleBalance':balanceGeneral(primaryAccounts,secondaryAccounts,tertiaryAccounts)
+    }
+    return render(request, "reports/balanceGeneral.html",context)
+
 def cuentaToMayorizar():
     """
         Metodo que regreza las partidas de mayor que cuenten con alguna iteracion en el diario
@@ -69,6 +78,12 @@ def numberItem():
         numero.append({'idItem': item.id, 'numero': index})
     return numero
 
+def calculoBalance(c,saldo):
+    if c.account_r is False:
+        return saldo
+    else:
+        return -1*saldo
+
 def mayorCuenta(principalAccounts):
     """
         Retorna las cuentas mayorizadas, no se toma en cuenta las partidas de cierre
@@ -90,7 +105,7 @@ def mayorCuenta(principalAccounts):
                 if j.Item.isItemEnd is False:
                     if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
                         contador += getSaldo(j,False)
-        cuentasMayorizadas.append({'main': a.name, 'saldo':contador})              
+        cuentasMayorizadas.append({'cuenta': a, 'saldo':contador})              
     return cuentasMayorizadas
 
 def calculoMayor(principalAccounts):
@@ -182,3 +197,21 @@ def sumaBalanza():
             totalAcreedor += c['saldo']
     
     return {'tDebe':totalDebe,'tHaber':totalHaber,'tDeudor':totalDeudor,'tAcreedor':totalAcreedor}
+
+def balanceGeneral(primaryAccounts, secondaryAccounts, tertiaryAccounts):
+    cuentasMayor = mayorCuenta(tertiaryAccounts)
+    cuentas = []
+    for p in primaryAccounts:
+        pCount = 0
+        for s in secondaryAccounts:
+            sCount = 0
+            if s.parent.id == p.id:
+                for t in cuentasMayor:
+                    if t['cuenta'].parent.id == s.id:
+                        sCount += calculoBalance(t['cuenta'],t['saldo'])
+                pCount += sCount
+                cuentas.append({'cuenta':s,'saldo':sCount})
+                print(s,": ",sCount)
+        cuentas.append({'cuenta':p,'saldo':pCount})
+        print(p,"                 : ",pCount )
+    return cuentas
