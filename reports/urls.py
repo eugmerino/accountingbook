@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import general_ledger_report,chekingBalance
+from .views import majorJournal,chekingBalance
 
 urlpatterns = [
-    path('libro_mayor/', general_ledger_report, name='general_ledger_report'),
+    path('libro_mayor/', majorJournal, name='major_journal'),
     path('balanza_comprobación/', chekingBalance, name='checkin_balance'),
 ]

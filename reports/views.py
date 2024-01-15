@@ -3,26 +3,11 @@ from journal.models import Transaction,Item
 from catalogue.models import Account,Balance_type
 from django.db.models import Q
 
-def cuentaToMayorizar():
-    principalAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
-    accountTransaccion = Transaction.objects.all()
-
-    cuentaMostrar = []
-
-    for p in principalAccounts:
-        for t in accountTransaccion:
-            if p.id == t.account.id or p.id == t.account.parent.id or p.id == t.account.parent.parent.id:
-                cuentaMostrar.append(p)
-                break  # Rompe el bucle interno una vez que se encuentra una coincidencia
-
-    return cuentaMostrar
-
-
-def general_ledger_report(request):
-
-    #Manda exclusivamente las cuentas que tengan ocurrencia en las partidas
+def majorJournal(request):
+    """
+        Metodo que carga el reporte de libro mayor
+    """
     principalAccounts = cuentaToMayorizar()
-
     mayor = calculoMayor(principalAccounts)
     
     context = {
@@ -33,11 +18,31 @@ def general_ledger_report(request):
     return render(request, 'reports/ledger.html', context)
 
 def chekingBalance(request):
+    """
+        Metodo que carga el reporte de balanza de comprobacion
+    """
     context = {
         'datos':calculoBalanza(),
         'total':sumaBalanza()
     }
     return render(request,'reports/balanceComprobación.html',context)
+
+def cuentaToMayorizar():
+    """
+        Metodo que regreza las partidas de mayor que cuenten con alguna iteracion en el diario
+    """
+    principalAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
+    accountTransaccion = Transaction.objects.all()
+
+    cuentaMostrar = []
+
+    for p in principalAccounts:
+        for t in accountTransaccion:
+            if p.id == t.account.id or p.id == t.account.parent.id or p.id == t.account.parent.parent.id:
+                cuentaMostrar.append(p)
+                break  
+
+    return cuentaMostrar
 
 def getSaldo(j,type):
     """
@@ -78,17 +83,13 @@ def mayorCuenta(principalAccounts):
             for j in journal:
                 if j.Item.isItemEnd is False:
                     if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
-                        contador += getSaldo(j,True)
-                        print("--------------",contador,"--------------",contador,"--------------",j.Item.value)
-                        
+                        contador += getSaldo(j,True)                 
         else:
             print(a.name,"Es acreedor porque ",a.parent.parent.name,"lo es")
             for j in journal:
                 if j.Item.isItemEnd is False:
                     if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
                         contador += getSaldo(j,False)
-                        print("--------------",contador,"--------------",contador,"--------------",j.Item.value)
-        print("name: ",a.name," saldo: ",contador)
         cuentasMayorizadas.append({'main': a.name, 'saldo':contador})              
     return cuentasMayorizadas
 
@@ -123,11 +124,14 @@ def calculoMayor(principalAccounts):
                         for p in partida:
                             if j.Item.id == p['idItem']:
                                 num = p['numero']
-                        cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':contador, 'numero':num})              
+                        cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':round(contador,2), 'numero':num})              
     return cuentasMayorizadas
 
 
 def calculoBalanza():
+    """
+     Retorna las cuentas con sus valores en el debe, haber, deudor y acreedor para la balanza de comprobacion
+    """
     principalAccounts = cuentaToMayorizar()
     journal = Transaction.objects.all()
     cuentasBalance = []
@@ -138,8 +142,7 @@ def calculoBalanza():
         try:
             tipo = Balance_type.objects.get(main_account=a.parent.parent)
         except Balance_type.DoesNotExist:
-            # Manejar el caso cuando no se encuentra el objeto Balance_type
-            tipo = None  # o proporcionar un valor predeterminado según tu lógica
+            tipo = None 
         if tipo is not None:
             if not tipo.nature_of_balance:
                 for j in journal:
@@ -163,6 +166,9 @@ def calculoBalanza():
     return cuentasBalance
 
 def sumaBalanza():
+    """
+        Devuelve totales para la balanza de comprobación
+    """
     totalDebe = 0
     totalHaber = 0
     totalDeudor = 0
