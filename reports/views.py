@@ -2,6 +2,8 @@ from django.shortcuts import render
 from journal.models import Transaction,Item
 from catalogue.models import Account,Balance_type
 from django.db.models import Q
+from stateOfResult.models import Formula
+from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio
 
 def majorJournal(request):
     """
@@ -13,7 +15,7 @@ def majorJournal(request):
 
     context = {
         'pricipalesCuentas' : principalAccounts,
-        'detalleMayor' : mayor
+        'detalleMayor' : mayor,
     }
     
     return render(request, 'reports/ledger.html', context)
@@ -29,13 +31,35 @@ def chekingBalance(request):
     return render(request,'reports/balanceComprobación.html',context)
 
 def balanceGenereal(request):
-    primaryAccounts = [Account.objects.get(name='ACTIVO'),Account.objects.get(name='PASIVO'),Account.objects.get(name='PATRIMONIO')]
-    secondaryAccounts = Account.objects.filter(parent__isnull=False,parent__parent__isnull=True)
-    tertiaryAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
+
+    suma_activo = sum(c['saldo'] for c in balanceGeneral() if c['cuenta'].name == 'ACTIVO')
+    suma_pasivo = sum(c['saldo'] for c in balanceGeneral() if c['cuenta'].name == 'PASIVO')
+    activoMasPasivo = suma_activo+suma_pasivo
+
     context = {
-        'detalleBalance':balanceGeneral(primaryAccounts,secondaryAccounts,tertiaryAccounts)
+        'detalleBalance':balanceGeneral(),
+        'suma': activoMasPasivo,
+
     }
     return render(request, "reports/balanceGeneral.html",context)
+
+def catalogo(request):
+    padres = Account.objects.filter(parent__isnull=True)
+    cuentas = Account.objects.filter(parent__isnull=False)
+    context = {
+        'padres':padres,
+        'cuentas':cuentas
+    }
+    return render(request,"reports/catalogo.html",context)
+
+def libroDiario(request):
+
+    context = {
+        'partida':numberItemDiario(),
+        'transacciones': Transaction.objects.all()
+    }
+
+    return render(request,'reports/libroDiario.html',context)
 
 def cuentaToMayorizar():
     """
@@ -79,6 +103,17 @@ def numberItem():
         numero.append({'idItem': item.id, 'numero': index})
     return numero
 
+def numberItemDiario():
+    """
+        Retorna el numero de partida + partida a la que pertenece
+    """
+    numero = []
+    all_items = Item.objects.all().order_by('date')
+    for index, item in enumerate(all_items, start=1):
+        item.date = item.date.strftime('%Y-%m-%d')
+        numero.append({'partida': item, 'numero': index})
+    return numero
+
 def calculoBalance(c,saldo):
     if c.account_r is False:
         return saldo
@@ -93,20 +128,22 @@ def mayorCuenta(principalAccounts):
     cuentasMayorizadas = []
     for a in principalAccounts:
         contador = 0.0 
-        tipo  = Balance_type.objects.get(main_account=a.parent.parent) #Obetenemos el tipo que es True: Acreedor False: Deudor
-        if not tipo.nature_of_balance:
-            print(a.name,"Es deudor porque ",a.parent.parent.name,"lo es")
-            for j in journal:
-                if j.Item.isItemEnd is False:
-                    if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
-                        contador += getSaldo(j,True)                 
-        else:
-            print(a.name,"Es acreedor porque ",a.parent.parent.name,"lo es")
-            for j in journal:
-                if j.Item.isItemEnd is False:
-                    if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
-                        contador += getSaldo(j,False)
-        cuentasMayorizadas.append({'cuenta': a, 'saldo':contador})              
+        try:
+            tipo = Balance_type.objects.get(main_account=a.parent.parent)
+        except Balance_type.DoesNotExist:
+            tipo = None
+        if tipo is not None:
+            if not tipo.nature_of_balance:
+                for j in journal:
+                    if j.Item.isItemEnd is False:
+                        if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
+                            contador += getSaldo(j,True)                 
+            else:
+                for j in journal:
+                    if j.Item.isItemEnd is False:
+                        if j.account.name == a.name or j.account.parent.name == a.name or j.account.parent.parent.name == a.name:
+                            contador += getSaldo(j,False)
+            cuentasMayorizadas.append({'cuenta': a, 'saldo':contador})              
     return cuentasMayorizadas
 
 def calculoMayor(principalAccounts):
@@ -197,10 +234,21 @@ def sumaBalanza():
         else:
             totalAcreedor += c['saldo']
     
-    return {'tDebe':totalDebe,'tHaber':totalHaber,'tDeudor':totalDeudor,'tAcreedor':totalAcreedor}
+    return {'tDebe':round(totalDebe,2),'tHaber':round(totalHaber,2),'tDeudor':round(totalDeudor,2),'tAcreedor':round(totalAcreedor,2)}
 
-def balanceGeneral(primaryAccounts, secondaryAccounts, tertiaryAccounts):
-    cuentasMayor = mayorCuenta(tertiaryAccounts)
+def balanceGeneral():
+    """
+        Devuelve array con partidas sumadas para mostrarse en el balance general
+    """
+    primaryAccounts = [Account.objects.get(name='ACTIVO'),Account.objects.get(name='PASIVO'),Account.objects.get(name='PATRIMONIO')]
+    secondaryAccounts = Account.objects.filter(parent__isnull=False,parent__parent__isnull=True)
+    tertaryAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
+
+    saldoInvFinal = Formula.objects.get(concept='Inventario Final')
+    saldoReserva = getReservaLegal("a")
+    saldoUtilidad = getUtilidadDelEjercicio("a")
+
+    cuentasMayor = mayorCuenta(tertaryAccounts)
     cuentas = []
     for p in primaryAccounts:
         pCount = 0
@@ -209,11 +257,18 @@ def balanceGeneral(primaryAccounts, secondaryAccounts, tertiaryAccounts):
             if s.parent.id == p.id:
                 for t in cuentasMayor:
                     if t['cuenta'].parent.id == s.id:
+                        if t['cuenta'].name == "INVENTARIOS":
+                            t['saldo'] = saldoInvFinal.initial_value
+                        if t['cuenta'].name == "UTILIDAD DEL EJERCICIO":
+                            t['saldo'] = saldoUtilidad
+                        if t['cuenta'].name == "RESERVA LEGAL":
+                            t['saldo'] = saldoReserva  
                         sCount += calculoBalance(t['cuenta'],t['saldo'])
+                        cuentas.append({'cuenta':t['cuenta'],'saldo':round(t['saldo'],2)})
                 pCount += sCount
-                cuentas.append({'cuenta':s,'saldo':sCount})
-                print(s,": ",sCount)
-        cuentas.append({'cuenta':p,'saldo':pCount})
-        print(p,"                 : ",pCount )
+                cuentas.append({'cuenta':s,'saldo':round(sCount,2)})
+
+        cuentas.append({'cuenta':p,'saldo':round(pCount,2)})
+
     return cuentas
 
