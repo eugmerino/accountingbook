@@ -3,7 +3,7 @@ from journal.models import Transaction,Item
 from catalogue.models import Account,Balance_type
 from django.db.models import Q
 from stateOfResult.models import Formula
-from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio
+from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio,getImpuestoSobrelaRenta
 
 def majorJournal(request):
     """
@@ -32,7 +32,7 @@ def chekingBalance(request):
 
 def balanceGenereal(request):
 
-    suma_activo = sum(c['saldo'] for c in balanceGeneral() if c['cuenta'].name == 'ACTIVO')
+    suma_activo = sum(c['saldo'] for c in balanceGeneral() if c['cuenta'].name == 'PATRIMONIO')
     suma_pasivo = sum(c['saldo'] for c in balanceGeneral() if c['cuenta'].name == 'PASIVO')
     activoMasPasivo = suma_activo+suma_pasivo
 
@@ -247,6 +247,7 @@ def balanceGeneral():
     saldoInvFinal = Formula.objects.get(concept='Inventario Final')
     saldoReserva = getReservaLegal("a")
     saldoUtilidad = getUtilidadDelEjercicio("a")
+    saldoImpuestosPorPagar = getImpuestoSobrelaRenta("a")
 
     cuentasMayor = mayorCuenta(tertaryAccounts)
     cuentas = []
@@ -263,6 +264,8 @@ def balanceGeneral():
                             t['saldo'] = saldoUtilidad
                         if t['cuenta'].name == "RESERVA LEGAL":
                             t['saldo'] = saldoReserva  
+                        if t['cuenta'].name == "IMPUESTOS POR PAGAR":
+                            t['saldo'] = saldoImpuestosPorPagar 
                         sCount += calculoBalance(t['cuenta'],t['saldo'])
                         cuentas.append({'cuenta':t['cuenta'],'saldo':round(t['saldo'],2)})
                 pCount += sCount

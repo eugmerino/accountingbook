@@ -14,7 +14,9 @@
 
     <body>
         <div class="container pt-5 text-center">
-            <h1>Reporte de balance general</h1>
+            <h1>Balance General</h1>
+            <p>al 31 de Diciembre del 2023</p>
+            <p>(Expresado en Dólares de los Estados Unidos de America)</p>
         </div>
         <div class="container">
             {% if detalleBalance %}
@@ -28,7 +30,7 @@
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td><strong>{{c.saldo}}</strong></td>
+                                        <td><strong>${{c.saldo}}</strong></td>
                                     </tr>
                                 {% else %}
                                     {% if c.cuenta.parent.parent is null %}
@@ -36,7 +38,7 @@
                                             <td><strong>{{c.cuenta.name}}</strong></td>
                                             <td></td>
                                             <td></td>
-                                            <td><strong>{{c.saldo}}</strong></td>
+                                            <td><strong>${{c.saldo}}</strong></td>
                                             <td></td>
                                         </tr>
                                     {% else %}
@@ -52,11 +54,11 @@
                             {% endif %}
                         {% endfor %}
                         <tr>
-                            <td><strong>ACTIVO + PASIVO</strong></td>
+                            <td><strong>PASIVO + PATRIMONIO</strong></td>
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td><strong>{{suma}}</strong></td>
+                            <td><strong>${{suma}}</strong></td>
                         </tr>
                     </tbody>
             </table>
