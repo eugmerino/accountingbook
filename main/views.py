@@ -8,7 +8,7 @@ from . import forms
 # Create your views here.
 def start(request):
     if request.method == 'POST':
-        return redirect('login')
+        return redirect('admin/')
     return render(request,'start.html')
 
 def signIn(request):

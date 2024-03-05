@@ -1,3 +1,4 @@
+{% load filters %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -12,50 +13,56 @@
 </head>
 
 <body>
-    <h1>Reporte del libro mayor</h1>
-    <p>{{ informacion }}</p>
+    <div class="container pt-5 text-center">
+        <h1>Libro mayor</h1>
+        <p>(Expresado en Dólares de los Estados Unidos de America)</p>
+    </div>
     <div class="container">
-        {% for account in pricipalesCuentas %}
-        <div class="card">
-            <h5 class="card-title">{{account.name}}</h5>
-            <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Concepto</th>
-                            <th>pf</th>
-                            <th>Debe</th>
-                            <th>Haber</th>
-                            <th>Saldo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transaccion in detallePatidas %}
-                            {% if transaccion.account.name == account.name or transaccion.account.parent.name == account.name or  transaccion.account.parent.parent.name == account.name%}
-                                
-                                    <tr>
-                                        <td>{{transaccion.Item.date}}</td>
-                                        <td>{{transaccion.Item.value}}</td>
-                                        <td>No se</td>
-                                        {% if not transaccion.debit_credit %}
-                                                <td>{{transaccion.balance}}</td>
-                                                <td> </td>
-                                            
+        {% if pricipalesCuentas %}
+            {% for account in pricipalesCuentas %}
+            <div class="pt-5">
+                <h5>{{account}}</h5>
+                <div>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Concepto</th>
+                                <th>P/F</th>
+                                <th>Debe</th>
+                                <th>Haber</th>
+                                <th>Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in detalleMayor %}
+                                {% if m.main == account.name %}
+                                        <tr>
+                                            <td>{{m.transaccion.Item.date}}</td>
+                                            <td>{{m.transaccion.Item.value}}</td>
+                                            <td><a href="http://127.0.0.1:8000/admin/journal/item/{{ m.transaccion.Item.id }}/change/" target="_blank">{{m.numero}}</a></td>
+                                            {% if not m.transaccion.debit_credit %}
+                                                    <td>{{m.transaccion.balance}}</td>
+                                                    <td> </td>
                                             {% else %}
-                                                <td> </td>
-                                                <td>{{transaccion.balance}}</td>
-
-                                        {% endif %}
-                                        <td></td>
-                                    </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                                    <td> </td>
+                                                    <td>{{m.transaccion.balance}}</td>
+                                            {% endif %}
+                                            <td>{{m.saldo}}</td>
+                                        </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="card bg-primary text-white text-center">
+                <div class="card-body">No se cuentan con datos para generar los calculos</div>
+            </div>
+        {% endif %}
+        
     </div>
     <!-- Agrega más contenido según sea necesario -->
 </body>

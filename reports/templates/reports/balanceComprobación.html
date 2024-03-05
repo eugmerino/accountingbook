@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balanza de comprobación</title>
+    <!-- Bootstrap CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS (CDN) and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container pt-5 text-center">
+        <h1>Balanza de comprobación</h1>
+        <p>(Expresado en Dólares de los Estados Unidos de America)</p>
+    </div>
+    <div class="container">
+        <div class="pt-5">
+            {% if datos %}
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Cuenta</th>
+                            <th>Debe</th>
+                            <th>Haber</th>
+                            <th>Saldo Deudor</th>
+                            <th>Saldo Acreedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in datos %}
+                            <tr>
+                                <td>{{c.main}}</td>
+                                <td>${{c.debe}}</td>
+                                <td>${{c.haber}}</td>
+                                {% if c.tipo is False %}
+                                    <td>${{c.saldo}}</td>
+                                    <td></td>
+                                {% else %}
+                                    <td></td>
+                                    <td>${{c.saldo}}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><strong>Total</strong></td>
+                            <td><strong>${{total.tDebe}}</strong></td>
+                            <td><strong>${{total.tHaber}}</strong></td>
+                            <td><strong>${{total.tDeudor}}</strong></td>
+                            <td><strong>${{total.tAcreedor}}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% else %}
+            <div class="card bg-primary text-white text-center">
+                <div class="card-body">No se cuentan con datos para generar los calculos</div>
+              </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
