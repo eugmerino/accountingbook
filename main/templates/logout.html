@@ -1,16 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
-    <div class="card text-center" style="width: 18rem;">
-        <div class="card-body">
-            <h5 class="card-title">ACCOUNTINGBOOK</h5>
-            <p class="card-text">¿Estas seguro que quieres cerrar sesión?</p>
-            <form method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Cerrar</button>
-            </form>
-        </div>
+<div class="container-fluid d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div class="text-center bg-white p-4 rounded shadow" style="max-width: 400px;">
+        <h3 class="text-dark mb-3">ACCOUNTINGBOOK</h3>
+        <p class="text-muted">¿Estás seguro que quieres cerrar sesión?</p>
+        <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark btn-lg w-100">Cerrar</button>
+        </form>
     </div>
 </div>
 {% endblock %}
