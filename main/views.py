@@ -8,7 +8,7 @@ from . import forms
 # Create your views here.
 def start(request):
     if request.method == 'POST':
-        return redirect('admin/')
+        return redirect('login')
     return render(request,'start.html')
 
 def signIn(request):
@@ -40,7 +40,7 @@ def dashBoard(request):
 def singOut(request):
     if request.method == 'POST':
         logout(request)
-        return redirect('login')
+        return redirect('start')
     return render(request,'logout.html')
 
 
