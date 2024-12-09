@@ -1,9 +1,102 @@
 from django.shortcuts import render
-from journal.models import Transaction,Item
-from catalogue.models import Account,Balance_type
+from journal.models import Transaction, Item
+from catalogue.models import Account, Balance_type
 from django.db.models import Q
 from stateOfResult.models import Formula
 from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio,getImpuestoSobrelaRenta
+from django.db.models import Sum
+
+def get_main_account(account):
+    """
+    devuelve la cuenta padre de una cuenta
+    """
+    while account.parent:
+        account = account.parent
+    return account
+
+def get_descendants(account):
+    """
+    Devuelve una lista con las cuentas de su descendencia e incluida ella misma.
+    """
+    descendants = [account]  # Incluye la cuenta actual
+    children = Account.objects.filter(parent=account)  # Busca los hijos directos
+    for child in children:
+        descendants.extend(get_descendants(child))  # Llama recursivamente para cada hijo
+    return descendants
+
+def account_balance(account):
+    """
+    Devuelve el saldo de una cuenta
+    """
+    descendants = get_descendants(account)
+    transactions = Transaction.objects.filter(account__in=descendants)
+
+    balanceType = Balance_type.objects.filter(main_account=get_main_account(account)).first()
+    if not balanceType:
+        return 0
+
+    credit_sum = transactions.filter(debit_credit=True).aggregate(Sum('balance'))['balance__sum'] or 0
+    debit_sum = transactions.filter(debit_credit=False).aggregate(Sum('balance'))['balance__sum'] or 0
+
+    if balanceType.nature_of_balance:
+        # Acreedor
+        return credit_sum - debit_sum
+    else:
+        # Deudor
+        return debit_sum - credit_sum
+
+def transaction_details(account):
+    """
+    Devuelve los detalles de transacciones, incluyendo el saldo acumulativo.
+    """
+    descendants = get_descendants(account)
+    transactions = Transaction.objects.filter(account__in=descendants).order_by('Item__date', 'id')  # Ordenar por fecha e ID
+    items = Item.objects.all().order_by('date')
+
+    # Crear un diccionario de número de partida
+    item_numbers = {item.id: idx + 1 for idx, item in enumerate(items)}
+
+    # Inicializar el saldo acumulado
+    balanceType = Balance_type.objects.filter(main_account=get_main_account(account)).first()
+    balance_nature = balanceType.nature_of_balance if balanceType else True  # Predeterminado a acreedor
+    running_balance = 0
+
+    # Construir los detalles de las transacciones
+    details = []
+    for transaction in transactions:
+        balance = transaction.balance or 0
+
+        # Actualizar el saldo acumulativo
+        if transaction.debit_credit:
+            # Si es crédito
+            running_balance += balance if balance_nature else -balance
+        else:
+            # Si es débito
+            running_balance -= balance if balance_nature else -balance
+
+        # Obtener el número de partida
+        item = transaction.Item
+        item_number = item_numbers.get(item.id, None) if item else None
+
+        # Agregar los detalles al diccionario
+        details.append({
+            'transaction': transaction,
+            'item': item,
+            'item_number': item_number,
+            'running_balance': running_balance,  # Saldo acumulado
+        })
+
+    return details
+
+def ledgerView(request):
+    accounts = Transaction.objects.values_list('account', flat=True).distinct()
+    print(f"Accounts encontrados: {list(accounts)}")
+    ledger = [
+        {'account': account, 'balance': account_balance(account), 'details': transaction_details(account)}
+        for account in Account.objects.filter(pk__in=accounts)
+    ]
+    return render(request, 'reports/ledgerM.html', {'ledger': ledger})
+
 
 def majorJournal(request):
     """
@@ -179,7 +272,6 @@ def calculoMayor(principalAccounts):
                                 num = p['numero']
                         cuentasMayorizadas.append({'main': a.name, 'transaccion':j, 'saldo':round(contador,2), 'numero':num})              
     return cuentasMayorizadas
-
 
 def calculoBalanza():
     """

@@ -13,16 +13,15 @@
 </head>
 
 <body>
-    <div class="container pt-5 text-center">
+    <div class="container pt-2 text-center">
         <h1>Libro mayor</h1>
         <p>(Expresado en Dólares de los Estados Unidos de America)</p>
     </div>
     <div class="container">
-        {% if pricipalesCuentas %}
-            {% for account in pricipalesCuentas %}
-            <div class="pt-5">
-                <h5>{{account}}</h5>
-                <div>
+        {% if ledger %}
+            {% for register in ledger %}
+                <div class="pt-5">
+                    <h5>{{ register.account.code }} - {{ register.account.name }} : ${{ register.balance }}</h5>
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -35,35 +34,32 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for m in detalleMayor %}
-                                {% if m.main == account.name %}
-                                        <tr>
-                                            <td>{{m.transaccion.Item.date}}</td>
-                                            <td>{{m.transaccion.Item.value}}</td>
-                                            <td><a href="http://127.0.0.1:8000/admin/journal/item/{{ m.transaccion.Item.id }}/change/" target="_blank">{{m.numero}}</a></td>
-                                            {% if not m.transaccion.debit_credit %}
-                                                    <td>{{m.transaccion.balance}}</td>
-                                                    <td> </td>
-                                            {% else %}
-                                                    <td> </td>
-                                                    <td>{{m.transaccion.balance}}</td>
-                                            {% endif %}
-                                            <td>{{m.saldo}}</td>
-                                        </tr>
-                                {% endif %}
+                            {% for record in register.details %}
+                                <tr>
+                                    <td>{{ record.transaction.Item.date }}</td>
+                                    <td>{{ record.transaction.Item.value }}</td>
+                                    <td><a href="http://127.0.0.1:8000/admin/journal/item/{{ record.transaction.Item.id }}/change/" target="_blank">{{ record.item_number }}</a></td>
+                                    {% if not record.transaction.debit_credit %}
+                                        <td>{{ record.transaction.balance }}</td>
+                                        <td> </td>
+                                    {% else %}
+                                        <td> </td>
+                                        <td>{{ record.transaction.balance }}</td>
+                                    {% endif %}
+                                    <td>{{ record.running_balance }}</td>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-            </div>
             {% endfor %}
         {% else %}
             <div class="card bg-primary text-white text-center">
-                <div class="card-body">No se cuentan con datos para generar los calculos</div>
+                <div class="card-body">No se cuentan con datos para generar los cálculos</div>
             </div>
         {% endif %}
-        
     </div>
+    
     <!-- Agrega más contenido según sea necesario -->
 </body>
 

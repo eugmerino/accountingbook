@@ -5,7 +5,7 @@ from .models import Report
 
 class ReportAdmin(admin.ModelAdmin):
     def Enlace_al_libro_Mayor(self, obj):
-        url = reverse('major_journal')
+        url = reverse('ledgerView')
         return format_html('<a href="{}" target="_blank">Reporte del libro mayor.</a>', url)
     def Enlace_a_balanza_de_comprobacion(self, obj):
         url = reverse('checkin_balance')
@@ -15,7 +15,7 @@ class ReportAdmin(admin.ModelAdmin):
         return format_html('<a href="{}" target="_blank">Reporte de balance general</a>', url)
     
     def Enlace_a_estado_de_resultado(self, obj):
-        url = reverse('general_stateOfResult_report')
+        url = reverse('state_of_result')
         return format_html('<a href="{}" target="_blank">Reporte del estado de resultado</a>', url)
     
     def Enlace_a_catalogo_de_cuentas(self, obj):
@@ -28,7 +28,7 @@ class ReportAdmin(admin.ModelAdmin):
 
     
     
-    readonly_fields = ['Enlace_a_catalogo_de_cuentas','Enlace_a_libro_diario','Enlace_al_libro_Mayor','Enlace_a_balanza_de_comprobacion','Enlace_a_estado_de_resultado', 'Enalece_a_balance_general',]
+    readonly_fields = ['Enlace_a_catalogo_de_cuentas','Enlace_a_libro_diario', 'Enlace_al_libro_Mayor','Enlace_a_balanza_de_comprobacion','Enlace_a_estado_de_resultado', 'Enalece_a_balance_general',]
 
 
     def has_change_permission(self, request, obj=None):
