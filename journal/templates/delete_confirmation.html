@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Confirmar Eliminación{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">¿Estás seguro de que deseas eliminar esta partida?</h2>
+    <p class="text-center">Esta acción no se puede deshacer.</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="text-center">
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a href="{% url 'journalMain' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock content %}
