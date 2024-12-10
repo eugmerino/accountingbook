@@ -13,13 +13,34 @@
             {% endfor %}
         </div>
     {% endif %}
-    <h2 class="text-center">Agregar Partida</h2>
+    <h2 class="text-center">{{ title }}</h2>
     <form method="post">
         {% csrf_token %}
         <!-- Formulario de Item -->
         <div class="mb-4">
             <h4>Datos de la Partida</h4>
-            {{ itemForm.as_p }}
+            {% if is_edit %}
+                <!-- Mostrar la fecha como texto no editable cuando sea edición -->
+                <div class="mb-3">
+                    <label for="item-date" class="form-label">Fecha</label>
+                    <!-- Campo de texto solo para mostrar -->
+                    <input type="text" id="item-date" class="form-control" value="{{ item_date }}" readonly>
+                    <!-- Campo oculto para enviar al servidor -->
+                    <input type="hidden" name="date" value="{{ item_date }}">
+                </div>
+                <!-- Renderizar los otros campos del formulario -->
+                <div class="mb-3">
+                    <label for="id_value" class="form-label">Valor</label>
+                    {{ itemForm.value }}
+                </div>
+                <div class="form-check">
+                    {{ itemForm.isItemEnd }}
+                    <label for="id_isItemEnd" class="form-check-label">¿Es final?</label>
+                </div>
+            {% else %}
+                <!-- Mostrar el formulario completo cuando sea creación -->
+                {{ itemForm.as_p }}
+            {% endif %}
         </div>
 
         <!-- Formulario de Transacciones -->

@@ -24,47 +24,53 @@ def formItem(request):
     """
     Vista para agregar un nuevo Item junto con sus transacciones.
     """
-    item = None 
+    item = None
+    title = "Agregar Partida"
 
     if request.method == 'POST':
         formItem = itemForm(request.POST)
         formTrans = TransactionFormSet(request.POST, instance=item)
 
         if formItem.is_valid() and formTrans.is_valid():
-            
             item = formItem.save()
-           
             formTrans.instance = item
             formTrans.save()
 
             messages.success(request, "La partida y sus transacciones se han guardado exitosamente.")
-            return redirect('journalMain')  
+            return redirect('journalMain')
         else:
             if not formItem.is_valid():
                 messages.error(request, "Error en el formulario de la partida.")
             if not formTrans.is_valid():
                 messages.error(request, "El debe y el haber deben de estar balanceado.")
-
     else:
         formItem = itemForm()
         formTrans = TransactionFormSet(instance=item)
 
     objects = {
         "itemForm": formItem,
-        "transForm": formTrans
+        "transForm": formTrans,
+        "title": title
     }
 
     return render(request, 'formItem.html', objects)
+
 
 def editItem(request, pk):
     """
     Editar una partida existente junto con sus transacciones.
     """
     item = Item.objects.get(pk=pk)
+    title = "Editar Partida"
 
     if request.method == 'POST':
+        # Crear el formulario con los datos de POST
         formItem = itemForm(request.POST, instance=item)
         formTrans = TransactionFormSet(request.POST, instance=item)
+
+        # Actualizar manualmente la fecha del item desde el campo oculto si es necesario
+        if 'date' in request.POST:
+            item.date = request.POST['date']
 
         if formItem.is_valid() and formTrans.is_valid():
             formItem.save()
@@ -80,9 +86,15 @@ def editItem(request, pk):
 
     objects = {
         "itemForm": formItem,
-        "transForm": formTrans
+        "transForm": formTrans,
+        "title": title,
+        "is_edit": True,
+        "item_date": item.date.strftime('%Y-%m-%d')  # Formatear fecha para mostrarla
     }
     return render(request, 'formItem.html', objects)
+
+
+
 
 
 
