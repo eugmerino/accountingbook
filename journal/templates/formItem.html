@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Agregar Partida{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <h2 class="text-center">Agregar Partida</h2>
+    <form method="post">
+        {% csrf_token %}
+        <!-- Formulario de Item -->
+        <div class="mb-4">
+            <h4>Datos de la Partida</h4>
+            {{ itemForm.as_p }}
+        </div>
+
+        <!-- Formulario de Transacciones -->
+        <div class="mb-4">
+            <h4>Transacciones</h4>
+            {{ transForm.management_form }}
+            <div id="formset-container">
+                {% for form in transForm %}
+                    <div class="formset-item border p-3 mb-2">
+                        {{ form.as_p }}
+                        <button type="button" class="btn btn-danger btn-sm remove-form">Eliminar</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" id="add-form">Agregar Transacción</button>
+        </div>        
+
+        <!-- Botón para guardar -->
+        <div class="text-end mb-3">
+            <button type="submit" class="btn btn-dark">Guardar Partida</button>
+        </div>
+    </form>
+</div>
+<!--Manejo de las transacciones-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const formContainer = document.getElementById('formset-container');
+        const addFormButton = document.getElementById('add-form');
+        const totalFormsInput = document.querySelector('#id_transaction_set-TOTAL_FORMS');
+
+        // Evento para agregar un formulario
+        addFormButton.addEventListener('click', function () {
+            const totalForms = parseInt(totalFormsInput.value);
+            const newFormHtml = formContainer.children[0].outerHTML.replace(/-0-/g, `-${totalForms}-`).replace(/__prefix__/g, totalForms);
+
+            formContainer.insertAdjacentHTML('beforeend', newFormHtml);
+            totalFormsInput.value = totalForms + 1;
+            addRemoveEvent();
+        });
+
+        // Función para manejar el evento de eliminar un formulario
+        function addRemoveEvent() {
+            document.querySelectorAll('.remove-form').forEach((button) => {
+                button.addEventListener('click', function () {
+                    this.parentElement.remove();
+                    updateTotalForms();
+                });
+            });
+        }
+
+        // Actualiza el valor de TOTAL_FORMS tras eliminar un formulario
+        function updateTotalForms() {
+            totalFormsInput.value = formContainer.children.length;
+        }
+
+        // Agregar evento a los formularios iniciales
+        addRemoveEvent();
+    });
+</script>
+{% endblock content %}
+
