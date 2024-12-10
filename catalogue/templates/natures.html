@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<form>
+{% block title %}Naturaleza{% endblock title %}
 
-    {% csrf_token %}
-</form>
-<div class="container">
+{% block content %}
+<div class="container mt-4">
+
     {% if messages %}
         <div>
             {% for message in messages %}
@@ -16,33 +15,38 @@
             {% endfor %}
         </div>
     {% endif %}
-    <div class="container pt-5">
-        <a href="{% url "createnature" %}" class="btn btn-primary">Crear naturaleza</a>
+
+    <!-- Título y botón -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Naturaleza</h2>
+        <a href="{% url 'createnature' %}" class="btn btn-dark">
+            <i class="bi bi-plus-circle"></i> Crear Naturaleza
+        </a>
     </div>
-</div>
-<div class="container">
-    <div class="container pt-5">
-        <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>naturaleza</th>
-              </tr>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Naturaleza</th>
+                </tr>
             </thead>
             <tbody>
                 {% for nature in natures %}  
                     <tr>
-                        <td>{{nature.main_account}}</td>
+                        <td>{{ nature.main_account }}</td>
                         {% if nature.nature_of_balance == True %}
                             <td>Acreedor</td>
                         {% else %}
                             <td>Deudor</td>
                         {% endif %}
-
                     </tr>
                 {% endfor %}
-          </table>
-        
+            </tbody>
+        </table>
     </div>
 </div>
-{% endblock %}
+
+{% endblock content %}

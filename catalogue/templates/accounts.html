@@ -1,11 +1,10 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<form>
+{% block title %}Cuentas{% endblock title %}
 
-    {% csrf_token %}
-</form>
-<div class="container">
+{% block content %}
+<div class="container mt-4">
+
     {% if messages %}
         <div>
             {% for message in messages %}
@@ -16,37 +15,44 @@
             {% endfor %}
         </div>
     {% endif %}
-    <div class="container pt-5">
-        <a href="{% url "createaccnt" %}" class="btn btn-primary">Crear cuenta</a>
+
+    <!-- Título y botón -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold">Cuentas</h2>
+        <a href="{% url 'createaccnt' %}" class="btn btn-dark">
+            <i class="bi bi-plus-circle"></i> Crear Cuenta
+        </a>
     </div>
-</div>
-<div class="container">
-    <div class="container pt-5">
-        <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Descripcion</th>
-                <th>Cuenta R</th>
-              </tr>
+
+    <!-- Tabla -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">Código</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Cuenta R</th>
+                </tr>
             </thead>
             <tbody>
-                {% for account in accounts %}  
+                {% for account in accounts %}
                     <tr>
-                        <td>{{account.code}}</td>
-                        <td>{{account.name}}</td>
-                        <td>{{account.description}}</td>
-                        {% if account.account_r == True %}
-                            <td>✅</td>
-                        {% else %}
-                            <td>❌</td>
-                        {% endif %}
-
+                        <td>{{ account.code }}</td>
+                        <td>{{ account.name }}</td>
+                        <td>{{ account.description }}</td>
+                        <td>
+                            {% if account.account_r %}
+                                <span class="text-success">&#x2714;</span>
+                            {% else %}
+                                <span class="text-danger">&#x2718;</span>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
-          </table>
-        
+            </tbody>
+        </table>
     </div>
 </div>
-{% endblock %}
+
+{% endblock content %}
