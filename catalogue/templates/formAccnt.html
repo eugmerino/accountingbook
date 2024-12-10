@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Agregar Cuenta{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+   <form method="POST">
+    {% csrf_token %}
+    
+    <div class="mb-4">
+        <h4>Datos de la Cuenta</h4>
+        <p>El codigo se genera automaticamente*</p>
+        {{accntForm}}
+    </div>
+
+    <div class="text-end mb-3">
+        <button type="submit" class="btn btn-dark">Guardar Cuenta</button>
+    </div>
+   </form>
+</div>
+{% endblock content %}
+
