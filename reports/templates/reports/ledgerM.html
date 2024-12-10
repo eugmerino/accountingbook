@@ -21,7 +21,7 @@
         {% if ledger %}
             {% for register in ledger %}
                 <div class="pt-5">
-                    <h5>{{ register.account.code }} - {{ register.account.name }} : ${{ register.balance }}</h5>
+                    <h5>{{ register.account.code }} - {{ register.account.name }} : ${{ register.balance|floatformat:2 }}</h5>
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -46,7 +46,7 @@
                                         <td> </td>
                                         <td>${{ record.transaction.balance|floatformat:2 }}</td>
                                     {% endif %}
-                                    <td>${{ record.running_balanc|floatformat:2 }}</td>
+                                    <td>${{ record.running_balance|floatformat:2 }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
