@@ -3,7 +3,7 @@ from journal.models import Transaction, Item
 from catalogue.models import Account, Balance_type
 from django.db.models import Q
 from stateOfResult.models import Formula
-from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio,getImpuestoSobrelaRenta
+#from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio,getImpuestoSobrelaRenta
 from django.db.models import Sum
 
 def get_main_account(account):
