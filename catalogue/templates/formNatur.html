@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Agregar Naturaleza{% endblock title %}
+
+{% block content %}
+<div class="container mt-4">
+   <form method="POST">
+    {% csrf_token %}
+    
+    <div class="mb-4">
+        <h4>Datos de la Cuenta</h4>
+        </br>
+        {{natureForm}}
+    </div>
+
+    <div class="text-end mb-3">
+        <button type="submit" class="btn btn-dark">Guardar Cuenta</button>
+    </div>
+   </form>
+</div>
+{% endblock content %}

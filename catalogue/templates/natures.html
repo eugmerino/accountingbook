@@ -17,7 +17,7 @@
         </div>
     {% endif %}
     <div class="container pt-5">
-        <a href="{% url "createaccnt" %}" class="btn btn-primary">Crear cuenta</a>
+        <a href="{% url "createnature" %}" class="btn btn-primary">Crear naturaleza</a>
     </div>
 </div>
 <div class="container">
@@ -25,22 +25,18 @@
         <table class="table table-striped">
             <thead>
               <tr>
-                <th>Código</th>
                 <th>Nombre</th>
-                <th>Descripcion</th>
-                <th>Cuenta R</th>
+                <th>naturaleza</th>
               </tr>
             </thead>
             <tbody>
-                {% for account in accounts %}  
+                {% for nature in natures %}  
                     <tr>
-                        <td>{{account.code}}</td>
-                        <td>{{account.name}}</td>
-                        <td>{{account.description}}</td>
-                        {% if account.account_r == True %}
-                            <td>✅</td>
+                        <td>{{nature.main_account}}</td>
+                        {% if nature.nature_of_balance == True %}
+                            <td>Acreedor</td>
                         {% else %}
-                            <td>❌</td>
+                            <td>Deudor</td>
                         {% endif %}
 
                     </tr>
