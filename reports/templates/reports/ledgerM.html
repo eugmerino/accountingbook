@@ -38,15 +38,15 @@
                                 <tr>
                                     <td>{{ record.transaction.Item.date }}</td>
                                     <td>{{ record.transaction.Item.value }}</td>
-                                    <td><a href="http://127.0.0.1:8000/admin/journal/item/{{ record.transaction.Item.id }}/change/" target="_blank">{{ record.item_number }}</a></td>
+                                    <td><a href="{% url 'editItem' record.transaction.Item.id %}" target="_blank">{{ record.item_number }}</a></td>
                                     {% if not record.transaction.debit_credit %}
-                                        <td>{{ record.transaction.balance }}</td>
+                                        <td>${{ record.transaction.balance|floatformat:2 }}</td>
                                         <td> </td>
                                     {% else %}
                                         <td> </td>
-                                        <td>{{ record.transaction.balance }}</td>
+                                        <td>${{ record.transaction.balance|floatformat:2 }}</td>
                                     {% endif %}
-                                    <td>{{ record.running_balance }}</td>
+                                    <td>${{ record.running_balanc|floatformat:2 }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
