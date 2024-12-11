@@ -8,7 +8,7 @@ def getFormulaBalance(formula):
         total = formula.initial_value
     for term in Term.objects.filter(formula=formula):
         if(term.formula.id == formula.id):
-            termValue = account_balance(term.account)
+            termValue = account_balance(term.account, False)
             if term.operation:
                 total += termValue
             else:
@@ -22,7 +22,7 @@ def getFormulasBalance():
         list_terms = []
         
         for term in Term.objects.filter(formula=formula):
-            term_value = account_balance(term.account)
+            term_value = account_balance(term.account, False)
             if term.operation:
                 total += term_value
             else:
@@ -43,19 +43,6 @@ def getFormulasBalance():
     
     return data
 
-"""def getResultCalculations(data):
-    resultCalculations = []
-    ventasNetas = 0.00
-    
-    for formula in data:
-        if formula['concept'] == "Ventas Netas":
-            ventasNetas = formula['balance']
-        resultCalculations.append({
-            'Ventas Netas': ventasNetas,
-            
-        })
-
-    return resultCalculations"""
 
 
 def stateOfResultView(request):
