@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla con Bootstrap</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container my-5">
+        <h1 class="text-center mb-4">Cierre del ejercicio</h1>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Código</th>
+                        <th scope="col">Cuenta</th>
+                        <th scope="col">Debe</th>
+                        <th scope="col">Haber</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in cierre %}
+                        <tr>
+                            <td><strong>{{ c.date|date:"d/m/Y" }}</strong></td>
+                            <td></td>
+                            <td><strong>Partida No. 15</strong></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        {% for trans in transaction %}
+                            {% if trans.Item.id == c.id %}
+                            <tr>
+                                <td></td>
+                                <td>{{ trans.account.code }}</td>
+                                <td>{{ trans.account.name }}</td>
+                                {% if trans.debit_credit is False %}
+                                    <td>${{ trans.balance|floatformat:2 }}</td>
+                                    <td></td>
+                                {% else %}
+                                    <td></td>
+                                    <td>${{ trans.balance|floatformat:2 }}</td>
+                                {% endif %}
+                            </tr>
+                            {% endif %}
+                        {% endfor %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td>{{ c }}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (optional, for interactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

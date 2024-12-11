@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import chekingBalance,balanceGenereal,catalogo,libroDiario, ledgerView
+from .views import chekingBalance,balanceGenereal,catalogo,libroDiario, ledgerView,cierreEjercicio
 from stateOfResult.views import stateOfResultView
 
 
@@ -10,4 +10,5 @@ urlpatterns = [
     path('estado_de_resultado/', stateOfResultView, name='state_of_result'),
     path('catalogo/', catalogo, name='catalogue'),
     path('libro_diario/', libroDiario, name='journal'),
+    path('cierre_ejercicio/',cierreEjercicio,name='vamonos')
 ]

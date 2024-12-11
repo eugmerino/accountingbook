@@ -371,3 +371,9 @@ def balanceGeneral():
 
     return cuentas
 
+def cierreEjercicio(request):
+    cierre = Item.objects.filter(isItemEnd = True)
+    transacciones = Transaction.objects.filter(Item__isItemEnd = True)
+
+
+    return render(request,'reports/cierre.html',{"cierre":cierre,"transaction":transacciones})
