@@ -8,6 +8,114 @@ register = template.Library()
 saldo = 0
 accountActual = None
 
+ventasNetas = 0.00
+comprasTotales = 0.00
+comprasNetas = 0.00
+mercaderiaDisponible = 0.00
+inventarioFinal = 0.00
+costoDeLoVendido = 0.00
+utilidadBruta = 0.00
+gastosAdmin = 0.00
+gastosVentas = 0.00
+gastosFinancieros = 0.00
+gastosOperativos = 0.00
+utilidadOperacion = 0.00
+otrosProductos = 0.00
+otrosGastos = 0.00
+utilidadReserva = 0.00
+reserva = 0.00
+utilidadImpuesto = 0.00
+impuestoR = 0.00
+utilidadEjercicio = 0.00
+
+
+@register.filter(name='get_concept_balance')
+def get_concept_balance(concept, balance):
+    global ventasNetas, comprasTotales, comprasNetas, mercaderiaDisponible, inventarioFinal, gastosAdmin, gastosVentas, gastosFinancieros, otrosProductos, otrosGastos, utilidadAntesReserva
+    if concept == "Ventas Netas":
+        ventasNetas = balance
+    if concept == "Compras Totales":
+        comprasTotales = balance
+    if concept == "Compras Netas":
+        balance += comprasTotales
+        comprasNetas = balance
+    if concept == "Mercadería Disponible Para la Venta":
+        balance += comprasNetas
+        mercaderiaDisponible = balance
+    if concept == "Inventario Final":
+        inventarioFinal = balance
+    if concept == "Gastos de Administración":
+        gastosAdmin = balance
+    if concept == "Gastos de Venta":
+        gastosVentas = balance
+    if concept == "Gastos Financieros":
+        gastosFinancieros = balance
+    if concept == "Otros Productos":
+        otrosProductos = balance
+    if concept == "Otros Gastos":
+        otrosGastos = balance
+
+    return balance
+
+@register.filter(name='get_costo_de_lo_vendido')
+def get_costo_de_lo_vendido(value):
+    global mercaderiaDisponible, inventarioFinal, costoDeLoVendido
+    costoDeLoVendido = mercaderiaDisponible - inventarioFinal
+    return costoDeLoVendido
+
+@register.filter(name='get_utilidad_bruta')
+def get_utilidad_bruta(value):
+    global ventasNetas, costoDeLoVendido, utilidadBruta
+    utilidadBruta = ventasNetas - costoDeLoVendido
+    return round(utilidadBruta, 2)
+
+@register.filter(name='get_gastos_operativos')
+def get_gastos_operativos(value):
+    global gastosOperativos, gastosAdmin, gastosVentas, gastosFinancieros
+    gastosOperativos = gastosAdmin + gastosVentas + gastosFinancieros
+    return round(gastosOperativos, 2)
+
+@register.filter(name='get_utilidad_operacion')
+def get_utilidad_operacion(value):
+    global utilidadOperacion, gastosOperativos, utilidadBruta
+    utilidadOperacion = utilidadBruta - gastosOperativos
+    return round(utilidadOperacion, 2)
+
+@register.filter(name='get_utilidad_reserva')
+def get_utilidad_reserva(value):
+    global utilidadOperacion, utilidadReserva, otrosProductos, otrosGastos
+    utilidadReserva = utilidadOperacion + otrosProductos - otrosGastos
+    return round(utilidadReserva, 2)
+
+@register.filter(name='get_reserva_legal')
+def get_reserva_legal(value):
+    global utilidadReserva, reserva
+    reserva = utilidadReserva*.07
+    return round(reserva, 2)
+
+@register.filter(name='get_utilidad_impuesto')
+def get_utilidad_impuesto(value):
+    global utilidadReserva, reserva, utilidadImpuesto
+    utilidadImpuesto = utilidadReserva - reserva
+    return round(utilidadImpuesto, 2)
+
+@register.filter(name='get_impuestoR')
+def get_impuestoR(value):
+    global utilidadImpuesto, impuestoR
+    if utilidadImpuesto <= 150000:
+        impuestoR = utilidadImpuesto*0.25
+    else:
+        impuestoR = utilidadImpuesto*0.30
+    return round(impuestoR, 2)
+
+@register.filter(name='get_utilidad_ejercicio')
+def get_utilidad_ejercicio(value):
+    global utilidadImpuesto, impuestoR, utilidadEjercicio
+    utilidadEjercicio = utilidadImpuesto - impuestoR
+    return round(utilidadEjercicio, 2)
+
+
+"""
 @register.filter(name='get_calculated_balance')
 def get_calculated_balance(account, transaccion):
     global saldo, accountActual
@@ -154,3 +262,4 @@ def getImpuestoSobrelaRenta(Parametro):
 @register.filter(name='getUtilidadDelEjercicio')
 def getUtilidadDelEjercicio(Parametro):
     return round(getUtilidadAntesImpuesto("")-getImpuestoSobrelaRenta(""), 2)
+"""
