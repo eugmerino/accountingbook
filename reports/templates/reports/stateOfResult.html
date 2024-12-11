@@ -23,10 +23,10 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>+/-</td>
-                        <th>Concepto</th>
-                        <th>Parcial</th>
-                        <th>Saldos</td>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,7 +40,7 @@
                                         <td>-</td>
                                     {% endif %}
                                     <td>{{ term.term.account.name }}</td>
-                                    <td>{{ term.termValue }}</td>
+                                    <td>$ {{ term.termValue }}</td>
                                     <td></td>
                                 </tr>
                             {% endfor %}
@@ -48,20 +48,20 @@
                                 <td></td>
                                 <td style="text-transform: uppercase;"><strong>{{ formula.concept }}</strong></td>
                                 <td></td>
-                                <td>{{ formula.concept|get_concept_balance:formula.balance }}</td>
+                                <td>$ {{ formula.concept|get_concept_balance:formula.balance }}</td>
                             </tr>
                             {% if formula.concept == "Inventario Final" %}
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Costo de lo vendido</strong></td>
                                     <td></td>
-                                    <td>{{ "Costo de lo vendido"|get_costo_de_lo_vendido }}</td>
+                                    <td>$ {{ "Costo de lo vendido"|get_costo_de_lo_vendido }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Utilidad bruta</strong></td>
                                     <td></td>
-                                    <td>{{ "Utilidad bruta"|get_utilidad_bruta }}</td>
+                                    <td>$ {{ "Utilidad bruta"|get_utilidad_bruta }}</td>
                                 </tr>
                             {% endif %}
                             {% if formula.concept == "Gastos Financieros" %}
@@ -69,13 +69,13 @@
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Gastos de Operación</strong></td>
                                     <td></td>
-                                    <td>{{ "Gastos de Operación"|get_gastos_operativos }}</td>
+                                    <td>$ {{ "Gastos de Operación"|get_gastos_operativos }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Utilidad de operación</strong></td>
                                     <td></td>
-                                    <td>{{ "Utilidad de operación"|get_utilidad_operacion }}</td>
+                                    <td>$ {{ "Utilidad de operación"|get_utilidad_operacion }}</td>
                                 </tr>
                             {% endif %}
                             {% if formula.concept == "Otros Gastos" %}
@@ -83,31 +83,31 @@
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Utilidad antes de reserva</strong></td>
                                     <td></td>
-                                    <td>{{ "Utilidad antes de reserva"|get_utilidad_reserva }}</td>
+                                    <td>$ {{ "Utilidad antes de reserva"|get_utilidad_reserva }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Reserva legal (7%)</strong></td>
                                     <td></td>
-                                    <td>{{ "Reserva legal"|get_reserva_legal }}</td>
+                                    <td>$ {{ "Reserva legal"|get_reserva_legal }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Utilidad antes de impuesto</strong></td>
                                     <td></td>
-                                    <td>{{ "Utilidad antes de impuesto"|get_utilidad_impuesto }}</td>
+                                    <td>$ {{ "Utilidad antes de impuesto"|get_utilidad_impuesto }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Impuesto sobre la renta</strong></td>
                                     <td></td>
-                                    <td>{{ "Impuesto sobre la renta"|get_impuestoR }}</td>
+                                    <td>$ {{ "Impuesto sobre la renta"|get_impuestoR }}</td>
                                 </tr>
                                 <tr>
                                     <td></td>
                                     <td style="text-transform: uppercase;"><strong>Utilidad del ejercicio</strong></td>
                                     <td></td>
-                                    <td>{{ "Utilidad del ejercicio"|get_utilidad_ejercicio }}</td>
+                                    <td>$ {{ "Utilidad del ejercicio"|get_utilidad_ejercicio }}</td>
                                 </tr>
                             {% endif %}
                         {% endfor %}

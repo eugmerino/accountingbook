@@ -24,12 +24,15 @@ def get_descendants(account):
         descendants.extend(get_descendants(child))  # Llama recursivamente para cada hijo
     return descendants
 
-def account_balance(account):
+def account_balance(account, cierre):
     """
     Devuelve el saldo de una cuenta
     """
     descendants = get_descendants(account)
-    transactions = Transaction.objects.filter(account__in=descendants)
+    if cierre:
+        transactions = Transaction.objects.filter(account__in=descendants)
+    else:
+        transactions = Transaction.objects.filter(Item__isItemEnd = False, account__in=descendants)
 
     balanceType = Balance_type.objects.filter(main_account=get_main_account(account)).first()
     if not balanceType:
@@ -89,11 +92,14 @@ def transaction_details(account):
     return details
 
 def ledgerView(request):
+    
+    mainAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
     accounts = Transaction.objects.values_list('account', flat=True).distinct()
-    print(f"Accounts encontrados: {list(accounts)}")
+    #Account.objects.filter(pk__in=accounts)
     ledger = [
-        {'account': account, 'balance': account_balance(account), 'details': transaction_details(account)}
-        for account in Account.objects.filter(pk__in=accounts)
+        {'account': account, 'balance': account_balance(account, True), 'details': transaction_details(account)}
+        for account in mainAccounts
+        if transaction_details(account)
     ]
     return render(request, 'reports/ledgerM.html', {'ledger': ledger})
 
@@ -340,10 +346,6 @@ def balanceGeneral():
     saldoReserva = get_reserva_legal("a")
     saldoUtilidad = get_utilidad_ejercicio("a")
     saldoImpuestosPorPagar = get_impuestoR("a")
-    print(saldoInvFinal.initial_value)
-    print(saldoUtilidad)
-    print(saldoImpuestosPorPagar)
-    print(saldoReserva)
 
     cuentasMayor = mayorCuenta(tertaryAccounts)
     cuentas = []
