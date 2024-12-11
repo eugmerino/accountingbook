@@ -3,8 +3,8 @@ from journal.models import Transaction, Item
 from catalogue.models import Account, Balance_type
 from django.db.models import Q
 from stateOfResult.models import Formula
-#from .templatetags.filters import getReservaLegal,getUtilidadDelEjercicio,getImpuestoSobrelaRenta
 from django.db.models import Sum
+from .templatetags.filters import get_utilidad_ejercicio,get_impuestoR,get_reserva_legal
 
 def get_main_account(account):
     """
@@ -337,9 +337,13 @@ def balanceGeneral():
     tertaryAccounts = Account.objects.filter(parent__parent__isnull=False, parent__parent__parent__isnull=True)
 
     saldoInvFinal = Formula.objects.get(concept='Inventario Final')
-    saldoReserva = getReservaLegal("a")
-    saldoUtilidad = getUtilidadDelEjercicio("a")
-    saldoImpuestosPorPagar = getImpuestoSobrelaRenta("a")
+    saldoReserva = get_reserva_legal("a")
+    saldoUtilidad = get_utilidad_ejercicio("a")
+    saldoImpuestosPorPagar = get_impuestoR("a")
+    print(saldoInvFinal.initial_value)
+    print(saldoUtilidad)
+    print(saldoImpuestosPorPagar)
+    print(saldoReserva)
 
     cuentasMayor = mayorCuenta(tertaryAccounts)
     cuentas = []
